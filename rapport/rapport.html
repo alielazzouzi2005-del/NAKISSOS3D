@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rapport NAKISSOS3D</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --accent: #6b4423;
+    --accent-light: #c9a876;
+    --muted: #666;
+    --border: #e0ddd5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  header {
+    background: linear-gradient(135deg, #2c1810 0%, #6b4423 100%);
+    color: #f5f0e6;
+    padding: 60px 40px;
+    text-align: center;
+    border-bottom: 4px solid var(--accent-light);
+  }
+  header h1 {
+    margin: 0;
+    font-size: 3em;
+    letter-spacing: 4px;
+    font-weight: normal;
+  }
+  header .subtitle {
+    margin-top: 12px;
+    font-style: italic;
+    opacity: 0.85;
+    font-size: 1.1em;
+  }
+  header .authors {
+    margin-top: 24px;
+    font-size: 0.9em;
+    opacity: 0.75;
+  }
+  nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  nav a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.95em;
+    letter-spacing: 1px;
+  }
+  nav a:hover { text-decoration: underline; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 50px 40px 80px;
+  }
+  section {
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-child { border-bottom: none; }
+  h2 {
+    color: var(--accent);
+    font-size: 1.8em;
+    border-left: 4px solid var(--accent-light);
+    padding-left: 16px;
+    margin-bottom: 24px;
+  }
+  h3 {
+    color: var(--ink);
+    margin-top: 28px;
+  }
+  .status {
+    display: inline-block;
+    font-size: 0.75em;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: #f0e6d2;
+    color: var(--accent);
+    margin-left: 10px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+  }
+  .status.todo { background: #f5e1e1; color: #a04040; }
+  .status.wip { background: #fff3d6; color: #a07020; }
+  .status.done { background: #e1f0e1; color: #2c6b2c; }
+  .placeholder {
+    color: var(--muted);
+    font-style: italic;
+    padding: 20px;
+    background: #f0ede5;
+    border-radius: 4px;
+    text-align: center;
+  }
+  footer {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+    font-size: 0.85em;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NAKISSOS3D</h1>
+  <div class="subtitle">Le miroir à remonter le temps</div>
+  <div class="authors">
+    Célestin Alusse &middot; Tom Leturgeon &middot; Ali El Azzouzi &middot; Quentin Rigal<br>
+    Encadrants : Théophane Nicolas (INRAP) &middot; Ronan Gaugne (IRISA)
+  </div>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#resume">Résumé</a></li>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#contexte">Contexte</a></li>
+    <li><a href="#etat-art">État de l'art</a></li>
+    <li><a href="#objectifs">Objectifs</a></li>
+    <li><a href="#blender">Blender</a></li>
+    <li><a href="#bodytracking">Body Tracking</a></li>
+    <li><a href="#decors">Décors</a></li>
+    <li><a href="#calibration">Calibration</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <section id="resume">
+    <h2>Résumé <span class="status done">Terminé</span></h2>
+    <p>
+      Face au désintérêt croissant du public pour les musées &mdash; un Français sur deux ne s'y est pas rendu en 2024 &mdash;,
+      le projet <strong>NAKISSOS3D</strong> propose un <em>miroir interactif</em> permettant à l'utilisateur de se voir,
+      en temps réel, vêtu de costumes historiques reconstitués. Initialement amorcé l'an passé, le projet a été repris
+      depuis le début, faute de fichiers exploitables. Notre travail s'articule autour de quatre axes : la préparation
+      des skins sous Blender et leur intégration dans Unity, le body tracking via Azure Kinect couplé à l'habillage des
+      avatars sous Unity, la mise en place des décors et fonds verts, et enfin la calibration du miroir en Unity et C#.
+      Le présent rapport détaille les choix techniques, les difficultés rencontrées et les résultats obtenus.
+    </p>
+  </section>
+
+  <section id="introduction">
+    <h2>Introduction <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="contexte">
+    <h2>Contexte du projet <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="etat-art">
+    <h2>État de l'art <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="objectifs">
+    <h2>Objectifs <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="blender">
+    <h2>Partie 1 &mdash; Blender : skins et intégration Unity <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="bodytracking">
+    <h2>Partie 2 &mdash; Unity : body tracking et habillage <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="decors">
+    <h2>Partie 3 &mdash; Unity : fond vert et décors <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="calibration">
+    <h2>Partie 4 &mdash; Calibration du miroir (Unity + C#) <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+  <section id="conclusion">
+    <h2>Conclusion <span class="status todo">À faire</span></h2>
+    <div class="placeholder">À venir.</div>
+  </section>
+
+</main>
+
+<footer>
+  Rapport NAKISSOS3D &mdash; INSA Rennes &mdash; document en cours de rédaction
+</footer>
+
+</body>
+</html>
