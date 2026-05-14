@@ -240,56 +240,77 @@
 
     <h3>2.1 Choix des outils et environnement technique</h3>
     <p>
-      L'implémentation logicielle repose sur le moteur Unity, retenu pour sa robustesse dans la gestion
-      d'applications 3D temps réel. Le choix de la solution de capture de mouvement a été contraint par des
-      considérations matérielles : le SDK officiel de Microsoft pour l'Azure Kinect requiert une carte graphique
-      NVIDIA, dont nos postes de développement n'étaient pas équipés. Nous nous sommes donc tournés vers le
-      <em>middleware</em> multiplateforme Nuitrack, qui permet d'extraire les données squelettiques issues de la
-      caméra de profondeur avec une latence réduite.
+      L'implémentation logicielle repose sur le moteur Unity (version 6000.0.27f1, conservée par cohérence avec
+      l'environnement de l'an passé), retenu pour sa robustesse dans la gestion d'applications 3D temps réel et
+      pour la richesse de son écosystème de composants. Les scripts en C# sont édités sous Visual Studio 2022,
+      relié à Unity via le gestionnaire d'éditeurs externes.
+    </p>
+    <p>
+      Le choix de la solution de capture de mouvement a en revanche dû être révisé par rapport à la première
+      itération du projet. L'équipe précédente exploitait le SDK officiel de Microsoft pour l'Azure Kinect et son
+      module <em>Body Tracking</em>, qui nécessite une carte graphique NVIDIA pour son inférence par réseau de
+      neurones. Les postes mis à notre disposition n'étant pas équipés d'une telle carte, et l'outillage Azure
+      Kinect n'étant par ailleurs pas disponible sous Linux, nous avons retenu Nuitrack, un <em>middleware</em>
+      multiplateforme qui fournit les données squelettiques de la caméra de profondeur avec une latence
+      compatible d'un usage interactif.
     </p>
 
     <h3>2.2 Pipeline d'intégration de l'avatar</h3>
     <p>
-      Le déploiement du système de suivi a été conduit de manière incrémentale, afin de valider chaque étape
-      indépendamment et de garantir la stabilité de l'application :
+      Le déploiement du système de suivi a été conduit de manière incrémentale, en validant chaque étape avant
+      de passer à la suivante :
     </p>
     <ul>
       <li>
         <strong>Validation du suivi.</strong> Les données de mouvement ont d'abord été appliquées à un modèle
-        simplifié de type <em>stickman</em>, permettant de vérifier la précision du squelette fourni par Nuitrack
-        sans interférence d'éventuels défauts de <em>rigging</em>.
+        simplifié de type <em>stickman</em>, afin de vérifier la précision du squelette fourni par Nuitrack sans
+        risquer d'introduire de défaut imputable au <em>rigging</em> d'un avatar plus complexe.
       </li>
       <li>
-        <strong>Exploitation des modèles préparés.</strong> Une fois le suivi validé, les fichiers <code>.fbx</code>
-        issus du nettoyage sous Blender ont été importés dans Unity. La reconstruction préalable de la hiérarchie
-        des os, décrite à la section précédente, permet aux rotations de se propager naturellement le long de la
-        chaîne cinématique de l'avatar.
+        <strong>Maîtrise du <em>skinning</em>.</strong> Un avatar humanoïde standard récupéré sur l'Unity Asset
+        Store a ensuite servi de support intermédiaire, afin de mettre au point l'attachement du squelette
+        Nuitrack à un maillage habillé et d'observer le rendu d'un personnage complet en mouvement.
       </li>
       <li>
-        <strong>Application au modèle « Romain ».</strong> Ce <em>workflow</em> a été finalisé sur l'avatar
-        personnalisé hérité de l'équipe précédente, confirmant la capacité du pipeline à intégrer des actifs
+        <strong>Exploitation des modèles préparés.</strong> Les fichiers <code>.fbx</code> issus du nettoyage
+        sous Blender ont alors été importés dans Unity. La reconstruction préalable de la hiérarchie des os,
+        décrite à la section précédente, garantit la propagation naturelle des rotations le long de la chaîne
+        cinématique de l'avatar.
+      </li>
+      <li>
+        <strong>Application au modèle « Romain ».</strong> Le <em>workflow</em> a été finalisé sur l'avatar
+        personnalisé hérité de l'équipe précédente, démontrant la capacité du pipeline à intégrer des actifs
         existants une fois remis en conformité.
       </li>
     </ul>
 
     <h3>2.3 Physique des tissus et réalisme visuel</h3>
     <p>
-      L'un des défis majeurs concernait le comportement dynamique des vêtements. Afin d'éviter un rendu rigide
-      où les habits sembleraient plaqués sur l'avatar, une simulation simplifiée de physique des tissus a été
-      mise en place. L'emploi de modèles à forte densité de maillage (grand nombre de <em>vertices</em>) permet
-      d'obtenir des déformations plus fluides lors des mouvements. Un délai de réponse, paramétré directement
-      depuis l'interface de Unity, a ensuite été appliqué aux <em>vertices</em> situés sur la partie basse des
-      tuniques : le bas du costume suit ainsi le mouvement du corps avec un léger décalage, simulant le
-      flottement d'un tissu réel.
+      L'un des défis majeurs concernait le comportement dynamique des vêtements : appliqués tels quels sur un
+      squelette animé, ils suivent rigidement les mouvements de l'avatar et donnent l'impression d'être
+      plaqués sur le corps. Afin d'éviter cet effet, une simulation simplifiée de physique des tissus a été
+      mise en place. Le rendu s'appuie sur le composant <em>Skinned Mesh Renderer</em> de Unity, qui permet à
+      un maillage de se déformer en suivant les transformations d'un squelette tout en autorisant des
+      ajustements locaux sur les <em>vertices</em>.
+    </p>
+    <p>
+      Deux leviers ont été combinés. D'une part, l'emploi de modèles à forte densité de maillage permet
+      d'obtenir des déformations plus fluides aux articulations. D'autre part, un délai de réponse, paramétré
+      depuis l'interface de Unity, est appliqué aux <em>vertices</em> situés sur la partie basse des tuniques et
+      sur les capes : ces zones suivent le mouvement du corps avec un léger décalage, simulant le flottement
+      naturel d'un tissu réel. Le cas particulier de la cape a été traité en ajoutant des <em>vertices</em>
+      supplémentaires sous Blender, afin de disposer du degré de liberté nécessaire à un mouvement convaincant.
     </p>
 
     <h3>2.4 Interactivité et changement de costume</h3>
     <p>
       Pour répondre aux objectifs de médiation culturelle du projet, un système de menu interactif a été
-      développé en C#. En s'appuyant sur l'organisation des modèles en <em>prefabs</em> définie lors de l'étape
-      Blender, ce menu permet à l'utilisateur de changer de tenue en temps réel sans interrompre l'exécution
-      de l'application. La transition entre les différentes époques historiques s'effectue de manière fluide,
-      ce qui renforce la dimension ludique et immersive du miroir.
+      développé en C#. Chaque accessoire ou pièce de vêtement est instancié sous forme de <em>prefab</em>,
+      attaché au <em>joint</em> du squelette correspondant à la zone du corps concernée (haut du corps, tête,
+      etc.), et associé à un script dédié qui contrôle son affichage. Le menu, géré via un <em>Canvas</em>
+      Unity, permet à l'utilisateur de basculer en temps réel d'une tenue à une autre sans interrompre
+      l'exécution de l'application. La transition entre les différentes époques historiques s'effectue de
+      manière fluide, ce qui renforce la dimension ludique et immersive du miroir.
     </p>
   </section>
 
