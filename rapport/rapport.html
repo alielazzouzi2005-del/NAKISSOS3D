@@ -178,21 +178,11 @@
       des modèles sous Blender, suivi du mouvement et habillage sous Unity, incrustation de l'utilisateur dans
       un décor virtuel, et calibration du miroir. Chacun de nous s'est plus particulièrement chargé d'une de ces
       briques, mais nous avons travaillé ensemble la quasi-totalité du semestre, et il y a peu de décisions qui
-      n'aient pas été prises à plusieurs. La figure 1 donne une vue d'ensemble du pipeline. Soulignons un point
-      dès maintenant : l'assemblage final ne s'est pas déroulé aussi proprement que prévu. Un problème d'échelle
-      entre la calibration et le reste de la scène n'a pas pu être complètement résolu, comme nous y reviendrons
-      en conclusion.
+      n'aient pas été prises à plusieurs. Soulignons un point dès maintenant : l'assemblage final ne s'est pas
+      déroulé aussi proprement que prévu. Un problème d'échelle entre la calibration et le reste de la scène
+      n'a pas pu être complètement résolu, comme nous y reviendrons en conclusion.
     </p>
 
-    <figure style="text-align:center;margin:30px 0;">
-      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
-        [Figure 1 &mdash; Schéma du pipeline NAKISSOS3D : Azure Kinect &rarr; Nuitrack (ColorFrame + UserFrame) &rarr; masque de segmentation &rarr; shader HLSL &rarr; composition avec la scène 3D Unity &rarr; calibration géométrique &rarr; affichage à l'écran]
-      </div>
-      <figcaption style="font-size:0.9em;margin-top:8px;">
-        Figure 1. Vue d'ensemble du pipeline NAKISSOS3D : de l'acquisition par la caméra Azure Kinect jusqu'au
-        rendu composite à l'écran.
-      </figcaption>
-    </figure>
   </section>
 
   <section id="blender">
@@ -263,6 +253,17 @@
       <li>le modèle « Romain » hérité de l'équipe précédente, ce qui a confirmé que le pipeline pouvait digérer des actifs existants une fois remis au propre.</li>
     </ul>
 
+    <figure style="text-align:center;margin:30px 0;">
+      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
+        [Figure 1 &mdash; Capture du body tracking : deux silhouettes humaines reconstruites par Nuitrack à partir du nuage de points de la Kinect, l'une debout (squelette cyan), l'autre assise (squelette magenta).]
+      </div>
+      <figcaption style="font-size:0.9em;margin-top:8px;">
+        Figure 1. Body tracking en conditions réelles. Nuitrack reconstruit en temps réel les squelettes des
+        deux personnes présentes dans le champ de la Kinect, y compris dans une posture assise et partiellement
+        masquée par le mobilier.
+      </figcaption>
+    </figure>
+
     <h3>2.3 Physique des tissus et réalisme visuel</h3>
     <p>
       Le comportement des vêtements a été un vrai sujet. Tels quels, appliqués sur un squelette animé, ils
@@ -329,16 +330,6 @@ return fixed4(rgb.rgb, isPerson);</pre>
       par-dessus, et les vêtements 3D peuvent à leur tour passer en avant-plan.
     </p>
 
-    <figure style="text-align:center;margin:30px 0;">
-      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
-        [Figure 2 &mdash; Capture d'écran du composite final : visage et mains réels de l'utilisateur visibles à travers les ouvertures du costume 3D, sur fond de décor virtuel]
-      </div>
-      <figcaption style="font-size:0.9em;margin-top:8px;">
-        Figure 2. Capture du composite final : la silhouette réelle de l'utilisateur, extraite par segmentation,
-        apparaît habillée du costume 3D et placée dans le décor virtuel.
-      </figcaption>
-    </figure>
-
     <h3>3.4 Gestion du format couleur et correction du canal RGB</h3>
     <p>
       Restait un détail qui s'est révélé être un piège. La première version récupérait la texture couleur par
@@ -398,6 +389,17 @@ return fixed4(rgb.rgb, isPerson);</pre>
       pour l'effet miroir. Tant que le <code>NuitrackManager</code> est présent dans la scène, aucune
       configuration supplémentaire n'est nécessaire.
     </p>
+
+    <figure style="text-align:center;margin:30px 0;">
+      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
+        [Figure 2 &mdash; Photo du dispositif en fonctionnement : la Kinect est posée juste au-dessus de l'écran, et la main placée devant l'objectif apparaît correctement positionnée dans le reflet affiché.]
+      </div>
+      <figcaption style="font-size:0.9em;margin-top:8px;">
+        Figure 2. Test de la calibration miroir : la Kinect est posée juste au-dessus de l'écran, et les
+        doigts placés devant l'objectif apparaissent à l'écran à l'endroit attendu, comme dans un véritable
+        reflet.
+      </figcaption>
+    </figure>
 
     <h3>4.4 Inversion horizontale et paramètres ajustables</h3>
     <p>
