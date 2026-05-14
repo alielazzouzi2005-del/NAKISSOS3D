@@ -150,38 +150,49 @@
   <section id="resume">
     <h2>Résumé <span class="status done">Terminé</span></h2>
     <p>
-      Face au désintérêt croissant du public pour les musées (un Français sur deux ne s'y est pas rendu en 2024),
-      le projet <strong>NAKISSOS3D</strong> propose un <em>miroir interactif</em> permettant à l'utilisateur de se voir,
-      en temps réel, vêtu de costumes historiques reconstitués. Initialement amorcé l'an passé, le projet a été repris
-      depuis le début, faute de fichiers exploitables. Notre travail s'articule autour de quatre axes : la préparation
-      des skins sous Blender et leur intégration dans Unity, le body tracking via Azure Kinect couplé à l'habillage des
-      avatars sous Unity, la mise en place des décors et fonds verts, et enfin la calibration du miroir en Unity et C#.
-      Le présent rapport détaille les choix techniques, les difficultés rencontrées et les résultats obtenus.
+      En 2024, un Français sur deux n'est pas allé au musée. NAKISSOS3D cherche à inverser la tendance avec
+      un <em>miroir interactif</em> dans lequel l'utilisateur se voit, en temps réel, vêtu de costumes
+      historiques reconstitués et plongé dans un décor d'époque. Le projet avait été amorcé l'année dernière
+      mais nous avons dû le reprendre intégralement, faute de fichiers réutilisables. Quatre briques techniques
+      ont été développées : préparation des modèles 3D sous Blender, body tracking et habillage des avatars
+      sous Unity, incrustation de l'utilisateur dans un décor virtuel, et calibration géométrique de l'effet
+      miroir. Ce rapport revient sur leur conception, leurs limites, et l'intégration partielle qui en résulte.
     </p>
   </section>
 
   <section id="introduction">
     <h2>Introduction <span class="status done">Terminé</span></h2>
     <p>
-      NAKISSOS3D est un dispositif de <em>miroir interactif</em> destiné à la médiation patrimoniale : l'utilisateur
-      se place devant un écran connecté à une caméra de profondeur, et y voit son propre reflet, en temps réel,
-      vêtu de costumes historiques reconstitués et inséré dans un décor d'époque. Le projet est mené à l'INSA Rennes
-      dans le cadre du module de projet d'études, sous l'encadrement de Ronan Gaugne (IRISA) et de Théophane Nicolas
-      (INRAP), qui apportent respectivement leur expertise en informatique graphique et en archéologie.
+      NAKISSOS3D est un projet de <em>miroir interactif</em> pensé pour la médiation patrimoniale. L'utilisateur
+      se place devant un écran, sur lequel une caméra de profondeur le filme, et y voit son propre reflet habillé
+      d'un costume historique, dans un décor d'époque. Le projet est mené à l'INSA Rennes sous l'encadrement de
+      Ronan Gaugne (IRISA) et Théophane Nicolas (INRAP).
     </p>
     <p>
-      Le sujet avait été amorcé l'an passé par une première équipe, sans aboutir à un prototype fonctionnel. Les
-      fichiers transmis se sont révélés incomplets et difficilement réutilisables ; en accord avec nos encadrants,
-      nous avons fait le choix de reprendre le projet depuis le début, en conservant l'objectif initial mais en
-      redéfinissant l'architecture logicielle et les outils.
+      Le sujet avait été lancé l'an dernier par une première équipe, sans qu'un prototype fonctionnel ait pu voir
+      le jour. Les fichiers que nous avons récupérés étaient incomplets et, pour la plupart, inexploitables. Après
+      discussion avec nos encadrants, nous sommes donc repartis de zéro.
     </p>
     <p>
-      Le présent rapport s'organise en quatre sections, correspondant chacune à l'une des contributions
-      techniques apportées par les membres de l'équipe : la préparation des modèles 3D sous Blender et leur
-      intégration dans Unity, la capture du mouvement et l'habillage des avatars, l'intégration d'un fond vert
-      virtuel par segmentation Nuitrack, et enfin la calibration géométrique du miroir. Une conclusion dresse
-      le bilan des résultats obtenus et ouvre sur les perspectives d'amélioration.
+      Le rapport est organisé en quatre sections, dans l'ordre logique de la chaîne de traitement : préparation
+      des modèles sous Blender, suivi du mouvement et habillage sous Unity, incrustation de l'utilisateur dans
+      un décor virtuel, et calibration du miroir. Chacun de nous s'est plus particulièrement chargé d'une de ces
+      briques, mais nous avons travaillé ensemble la quasi-totalité du semestre, et il y a peu de décisions qui
+      n'aient pas été prises à plusieurs. La figure 1 donne une vue d'ensemble du pipeline. Soulignons un point
+      dès maintenant : l'assemblage final ne s'est pas déroulé aussi proprement que prévu. Un problème d'échelle
+      entre la calibration et le reste de la scène n'a pas pu être complètement résolu, comme nous y reviendrons
+      en conclusion.
     </p>
+
+    <figure style="text-align:center;margin:30px 0;">
+      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
+        [Figure 1 &mdash; Schéma du pipeline NAKISSOS3D : Azure Kinect &rarr; Nuitrack (ColorFrame + UserFrame) &rarr; masque de segmentation &rarr; shader HLSL &rarr; composition avec la scène 3D Unity &rarr; calibration géométrique &rarr; affichage à l'écran]
+      </div>
+      <figcaption style="font-size:0.9em;margin-top:8px;">
+        Figure 1. Vue d'ensemble du pipeline NAKISSOS3D : de l'acquisition par la caméra Azure Kinect jusqu'au
+        rendu composite à l'écran.
+      </figcaption>
+    </figure>
   </section>
 
   <section id="blender">
@@ -189,50 +200,38 @@
 
     <h3>1.1 Récupération et état initial des modèles</h3>
     <p>
-      Les modèles 3D utilisés dans le projet ont été repris d'une banque fournie par l'encadrement, regroupant
-      plusieurs personnages historiques déjà modélisés et texturés. Ces modèles disposaient d'un squelette
-      (<em>rig</em>) hérité d'un usage antérieur, conçu pour des animations préenregistrées et non pour un suivi
-      en temps réel par capture de mouvement. Leur exploitation directe au sein de Unity, en sortie de la chaîne
-      de body tracking, s'est révélée impossible sans une étape préalable de remise en conformité du <em>rig</em>
-      et de la géométrie.
+      Le projet repose en partie sur des modèles 3D de personnages historiques fournis par l'encadrement :
+      tuniques, capes, accessoires d'époque. Ces modèles avaient déjà servi pour des animations préenregistrées,
+      et disposaient à ce titre d'un squelette intégré. Mais ce <em>rig</em> n'avait pas été conçu pour être
+      piloté par une capture de mouvement temps réel, et tel quel, il ne fonctionnait pas dans notre contexte.
     </p>
 
     <h3>1.2 Nettoyage du squelette</h3>
     <p>
-      La première intervention a consisté à supprimer l'ensemble des contraintes mécaniques attachées aux os
-      du <em>rig</em>. Ces contraintes, qui restreignaient l'amplitude angulaire de certaines articulations,
-      ne sont pas pertinentes dans notre cas d'usage : les mouvements appliqués aux modèles proviennent d'un
-      utilisateur humain réel, dont les articulations sont par nature limitées à des amplitudes physiologiques.
-      Les contraintes héritées entraient en conflit avec la cinématique reconstruite à partir du squelette
-      Nuitrack et produisaient des poses figées ou bloquées.
-    </p>
-    <p>
-      La hiérarchie parent-enfant des os a ensuite été entièrement reconstruite afin de garantir une propagation
-      naturelle des rotations le long de la chaîne cinématique. Cette étape conditionne directement la qualité
-      du rendu : un os mal rattaché provoque, à l'usage, des déformations visibles du maillage lors des
-      mouvements de l'utilisateur.
+      Le <em>rig</em> contenait des contraintes mécaniques limitant l'amplitude angulaire de certaines
+      articulations. Or, dans notre cas, les mouvements proviennent d'un utilisateur réel : ses articulations
+      sont déjà bornées physiologiquement, et les contraintes du modèle entraient en conflit avec le squelette
+      Nuitrack, produisant des poses bloquées. Nous les avons toutes retirées. La hiérarchie parent-enfant des
+      os a également été refaite, pour que les rotations se propagent correctement le long du squelette ; sans
+      cela, le maillage présente à l'usage des déformations très visibles.
     </p>
 
     <h3>1.3 Suppression des zones occlusives</h3>
     <p>
-      Les maillages correspondant au visage et aux mains ont été retirés sur chacun des modèles. Cette
-      suppression répond à une contrainte de cohérence visuelle avec la partie composition : le dispositif
-      final superpose le flux vidéo réel de l'utilisateur aux vêtements 3D. Conserver un visage et des mains
-      modélisés au sein de l'avatar aurait masqué les parties correspondantes de l'image réelle, brisant
-      l'illusion du miroir. En libérant ces zones, on permet au visage et aux mains de l'utilisateur de rester
-      pleinement visibles à l'écran, à travers les ouvertures du modèle 3D.
+      Sur chacun des modèles, les maillages du visage et des mains ont aussi été retirés. C'est une décision
+      dictée par la suite du pipeline : l'image finale superpose la vidéo réelle de l'utilisateur et l'avatar
+      3D. Si on garde un visage et des mains modélisés, ils masquent les zones correspondantes de la personne
+      réelle, et l'effet miroir tombe à plat. En libérant ces zones du modèle, on laisse passer le visage et
+      les mains de la personne à travers les ouvertures du costume.
     </p>
 
     <h3>1.4 Export et intégration sous Unity</h3>
     <p>
-      Les modèles préparés ont été exportés au format <code>.fbx</code>, qui constitue le format d'échange
-      privilégié entre Blender et Unity car il préserve à la fois la géométrie, le <em>rig</em> et les
-      coordonnées UV. À l'import dans Unity, chaque modèle a été encapsulé dans un <em>prefab</em>, c'est-à-dire
-      un actif réutilisable regroupant le maillage, le matériau et les références de texture associées.
-      L'emploi de <em>prefabs</em> garantit qu'un modèle peut être instancié à plusieurs endroits de la scène,
-      ou échangé dynamiquement au cours de l'exécution, sans avoir à reconfigurer l'application des textures
-      à chaque utilisation. Cette organisation facilite également le partage des modèles entre les différents
-      modules du projet et limite les risques de régression visuelle d'une version à l'autre.
+      Les modèles ont été exportés au format <code>.fbx</code>, qui préserve à la fois la géométrie, le
+      <em>rig</em> et les coordonnées UV. À l'import dans Unity, chaque modèle a été encapsulé dans un
+      <em>prefab</em> : un actif réutilisable qui regroupe le maillage, le matériau et ses textures.
+      Concrètement, on peut alors instancier ou substituer un modèle pendant l'exécution sans avoir à
+      reconfigurer ses textures à chaque fois.
     </p>
   </section>
 
@@ -241,77 +240,50 @@
 
     <h3>2.1 Choix des outils et environnement technique</h3>
     <p>
-      L'implémentation logicielle repose sur le moteur Unity (version 6000.0.27f1, conservée par cohérence avec
-      l'environnement de l'an passé), retenu pour sa robustesse dans la gestion d'applications 3D temps réel et
-      pour la richesse de son écosystème de composants. Les scripts en C# sont édités sous Visual Studio 2022,
-      relié à Unity via le gestionnaire d'éditeurs externes.
+      L'application est développée sous Unity (version 6000.0.27f1, conservée par cohérence avec celle de l'an
+      dernier). Les scripts en C# sont écrits sous Visual Studio 2022.
     </p>
     <p>
-      Le choix de la solution de capture de mouvement a en revanche dû être révisé par rapport à la première
-      itération du projet. L'équipe précédente exploitait le SDK officiel de Microsoft pour l'Azure Kinect et son
-      module <em>Body Tracking</em>, qui nécessite une carte graphique NVIDIA pour son inférence par réseau de
-      neurones. Les postes mis à notre disposition n'étant pas équipés d'une telle carte, et l'outillage Azure
-      Kinect n'étant par ailleurs pas disponible sous Linux, nous avons retenu Nuitrack, un <em>middleware</em>
-      multiplateforme qui fournit les données squelettiques de la caméra de profondeur avec une latence
-      compatible d'un usage interactif.
+      Le choix de la solution de body tracking a en revanche été revu. L'équipe précédente s'appuyait sur le
+      SDK officiel de Microsoft pour l'Azure Kinect, dont le module <em>Body Tracking</em> repose sur une
+      inférence neuronale qui exige une carte graphique NVIDIA. Aucun de nos postes n'en disposait, et l'outillage
+      Azure Kinect n'est par ailleurs pas disponible sous Linux. Nous nous sommes donc tournés vers Nuitrack,
+      un <em>middleware</em> multiplateforme qui expose les données squelettiques de la caméra de profondeur
+      avec une latence compatible d'un usage temps réel.
     </p>
 
     <h3>2.2 Pipeline d'intégration de l'avatar</h3>
     <p>
-      Le déploiement du système de suivi a été conduit de manière incrémentale, en validant chaque étape avant
-      de passer à la suivante :
+      Le suivi a été mis en place progressivement, en validant chaque étape avant d'enchaîner :
     </p>
     <ul>
-      <li>
-        <strong>Validation du suivi.</strong> Les données de mouvement ont d'abord été appliquées à un modèle
-        simplifié de type <em>stickman</em>, afin de vérifier la précision du squelette fourni par Nuitrack sans
-        risquer d'introduire de défaut imputable au <em>rigging</em> d'un avatar plus complexe.
-      </li>
-      <li>
-        <strong>Maîtrise du <em>skinning</em>.</strong> Un avatar humanoïde standard récupéré sur l'Unity Asset
-        Store a ensuite servi de support intermédiaire, afin de mettre au point l'attachement du squelette
-        Nuitrack à un maillage habillé et d'observer le rendu d'un personnage complet en mouvement.
-      </li>
-      <li>
-        <strong>Exploitation des modèles préparés.</strong> Les fichiers <code>.fbx</code> issus du nettoyage
-        sous Blender ont alors été importés dans Unity. La reconstruction préalable de la hiérarchie des os,
-        décrite à la section précédente, garantit la propagation naturelle des rotations le long de la chaîne
-        cinématique de l'avatar.
-      </li>
-      <li>
-        <strong>Application au modèle « Romain ».</strong> Le <em>workflow</em> a été finalisé sur l'avatar
-        personnalisé hérité de l'équipe précédente, démontrant la capacité du pipeline à intégrer des actifs
-        existants une fois remis en conformité.
-      </li>
+      <li>un <em>stickman</em> pour vérifier la qualité du squelette Nuitrack, sans interférence d'un avatar complexe ;</li>
+      <li>un avatar humanoïde standard récupéré sur l'Asset Store de Unity, pour mettre au point l'attachement du squelette à un personnage habillé et observer un rendu complet ;</li>
+      <li>nos modèles préparés sous Blender, importés en <code>.fbx</code> ;</li>
+      <li>le modèle « Romain » hérité de l'équipe précédente, ce qui a confirmé que le pipeline pouvait digérer des actifs existants une fois remis au propre.</li>
     </ul>
 
     <h3>2.3 Physique des tissus et réalisme visuel</h3>
     <p>
-      L'un des défis majeurs concernait le comportement dynamique des vêtements : appliqués tels quels sur un
-      squelette animé, ils suivent rigidement les mouvements de l'avatar et donnent l'impression d'être
-      plaqués sur le corps. Afin d'éviter cet effet, une simulation simplifiée de physique des tissus a été
-      mise en place. Le rendu s'appuie sur le composant <em>Skinned Mesh Renderer</em> de Unity, qui permet à
-      un maillage de se déformer en suivant les transformations d'un squelette tout en autorisant des
-      ajustements locaux sur les <em>vertices</em>.
+      Le comportement des vêtements a été un vrai sujet. Tels quels, appliqués sur un squelette animé, ils
+      suivent le corps de manière rigide, comme s'ils étaient peints dessus. Pour éviter cet effet plaqué, le
+      rendu s'appuie sur le composant <em>Skinned Mesh Renderer</em> de Unity, qui laisse un maillage se
+      déformer avec le squelette tout en autorisant des ajustements locaux sur les <em>vertices</em>.
     </p>
     <p>
-      Deux leviers ont été combinés. D'une part, l'emploi de modèles à forte densité de maillage permet
-      d'obtenir des déformations plus fluides aux articulations. D'autre part, un délai de réponse, paramétré
-      depuis l'interface de Unity, est appliqué aux <em>vertices</em> situés sur la partie basse des tuniques et
-      sur les capes : ces zones suivent le mouvement du corps avec un léger décalage, simulant le flottement
-      naturel d'un tissu réel. Le cas particulier de la cape a été traité en ajoutant des <em>vertices</em>
-      supplémentaires sous Blender, afin de disposer du degré de liberté nécessaire à un mouvement convaincant.
+      Sur les zones les plus visibles (bas des tuniques, capes), nous avons appliqué un délai de réponse au
+      mouvement, paramétré directement dans Unity : ces parties suivent le corps avec un léger retard, ce qui
+      imite le flottement naturel d'un tissu. La cape a demandé en plus un travail sous Blender, où nous avons
+      rajouté des <em>vertices</em> pour donner au maillage assez de degrés de liberté.
     </p>
 
     <h3>2.4 Interactivité et changement de costume</h3>
     <p>
-      Pour répondre aux objectifs de médiation culturelle du projet, un système de menu interactif a été
-      développé en C#. Chaque accessoire ou pièce de vêtement est instancié sous forme de <em>prefab</em>,
-      attaché au <em>joint</em> du squelette correspondant à la zone du corps concernée (haut du corps, tête,
-      etc.), et associé à un script dédié qui contrôle son affichage. Le menu, géré via un <em>Canvas</em>
-      Unity, permet à l'utilisateur de basculer en temps réel d'une tenue à une autre sans interrompre
-      l'exécution de l'application. La transition entre les différentes époques historiques s'effectue de
-      manière fluide, ce qui renforce la dimension ludique et immersive du miroir.
+      Un menu interactif en C# a été développé pour répondre à l'objectif de médiation culturelle. Chaque
+      accessoire ou pièce de vêtement est un <em>prefab</em> accroché au <em>joint</em> correspondant du
+      squelette (haut du corps, tête, etc.), et associé à un script qui contrôle son affichage. Le menu,
+      dessiné dans un <code>Canvas</code> Unity, permet de changer de tenue en cours d'exécution, sans
+      relancer l'application : la bascule d'une époque à l'autre se fait en quelques clics.
     </p>
   </section>
 
@@ -320,61 +292,66 @@
 
     <h3>3.1 Problématique</h3>
     <p>
-      L'objectif de cette partie est de faire apparaître à l'écran l'utilisateur réel, filmé par la caméra,
-      vêtu des habits 3D et inséré dans un décor virtuel correspondant à la période historique reconstituée.
-      Le dispositif doit donc réaliser, en temps réel, un véritable composite entre le flux vidéo de la caméra
-      et la scène 3D rendue par Unity.
+      Cette section traite du composite final : faire apparaître à l'écran la personne réelle filmée par la
+      caméra, vêtue des modèles 3D, et placée dans un décor virtuel cohérent avec la période représentée.
+      C'est la partie la plus visible du projet, et celle qui a posé le plus de questions, car la version
+      précédente n'avait jamais réussi à extraire le corps de l'utilisateur du flux vidéo. Faute de segmentation,
+      elle remplaçait totalement la personne par un avatar 3D animé : on ne voyait jamais le vrai utilisateur.
     </p>
     <p>
-      La version précédente du projet n'était jamais parvenue à extraire le corps de l'utilisateur du flux RGB :
-      faute de segmentation, l'équipe avait dû se rabattre sur un avatar 3D animé qui se substituait entièrement
-      à l'utilisateur, sans jamais laisser apparaître la personne réelle. La solution présentée ici repose sur
-      trois briques successives : la génération d'un masque de segmentation, la composition par shader HLSL, et
-      la gestion du format couleur natif de la caméra.
+      Notre solution combine un masque de segmentation produit par Nuitrack et un shader HLSL qui compose
+      l'image finale. Il a fallu aussi gérer un problème de format couleur que nous détaillons plus loin.
     </p>
 
     <h3>3.2 Segmentation par masque Nuitrack</h3>
     <p>
-      La solution retenue exploite la double sortie fournie par le SDK Nuitrack à partir de la caméra Azure Kinect.
-      Le <em>ColorFrame</em> donne accès à l'image RGB classique, tandis que l'<em>UserFrame</em> fournit, pour chaque
-      pixel, l'identifiant de l'utilisateur détecté à cet emplacement, ou zéro si aucun corps n'est présent.
-      Cette information est exploitée pour générer un masque binaire : un pixel vaut 255 lorsqu'un humain est
-      détecté, 0 sinon. Le masque est stocké dans une <code>Texture2D</code> au format <code>R8</code> (un seul canal,
-      très peu coûteux en mémoire) et mis à jour à chaque frame.
+      Nuitrack expose deux flux issus de la Kinect. Le <code>ColorFrame</code> est l'image RGB classique.
+      L'<code>UserFrame</code>, lui, est une carte qui indique pour chaque pixel l'identifiant de l'utilisateur
+      détecté à cet endroit, ou zéro si aucun corps n'y est repéré. On en tire un masque binaire : 255 quand
+      un humain est détecté, 0 sinon. Le masque est stocké dans une <code>Texture2D</code> au format
+      <code>R8</code> (un seul canal, donc peu coûteux), et mis à jour à chaque frame.
     </p>
 
     <h3>3.3 Composition par shader HLSL</h3>
     <p>
-      Une fois le masque disponible, un composant <code>GreenScreenCompositor</code> transmet deux textures à un
-      shader HLSL dédié : <code>_RGBTex</code>, l'image couleur capturée, et <code>_MaskTex</code>, le masque de
-      segmentation. Le shader détermine la valeur d'alpha de chaque pixel à partir du masque : il conserve la
-      couleur réelle là où un utilisateur est détecté, et rend le pixel transparent partout ailleurs. Le seuil
-      de 0.05 permet d'ignorer les légères valeurs résiduelles dues à la compression du masque :
+      Une fois le masque construit, un composant que nous avons appelé <code>GreenScreenCompositor</code>
+      envoie deux textures à un shader HLSL : la texture couleur <code>_RGBTex</code> et le masque
+      <code>_MaskTex</code>. Le shader détermine l'alpha de chaque pixel à partir du masque : il garde la
+      couleur réelle là où une personne est détectée, et rend le pixel transparent partout ailleurs. Le seuil
+      de 0.05 sert à filtrer les valeurs résiduelles de compression :
     </p>
     <pre style="background:#f0ede5;padding:12px;border-radius:4px;font-family:monospace;font-size:0.9em;">float isPerson = step(0.05, mask.r);
 return fixed4(rgb.rgb, isPerson);</pre>
     <p>
-      Le résultat est rendu dans une <code>RenderTexture</code> affichée par un <code>RawImage</code> de l'interface
-      Unity. La composition exploite alors directement le pipeline de rendu du moteur : la scène 3D du décor est
-      tracée en arrière-plan, la silhouette réelle de l'utilisateur vient s'incruster par-dessus, et les vêtements
-      3D peuvent à leur tour être placés en avant-plan. L'arrière-plan réel de la pièce disparaît complètement.
+      L'image obtenue est écrite dans une <code>RenderTexture</code>, elle-même affichée par un
+      <code>RawImage</code> de l'interface Unity. À partir de là, le moteur prend le relais pour la composition :
+      la scène 3D du décor est rendue en arrière-plan, la silhouette réelle de l'utilisateur s'incruste
+      par-dessus, et les vêtements 3D peuvent à leur tour passer en avant-plan.
     </p>
+
+    <figure style="text-align:center;margin:30px 0;">
+      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
+        [Figure 2 &mdash; Capture d'écran du composite final : visage et mains réels de l'utilisateur visibles à travers les ouvertures du costume 3D, sur fond de décor virtuel]
+      </div>
+      <figcaption style="font-size:0.9em;margin-top:8px;">
+        Figure 2. Capture du composite final : la silhouette réelle de l'utilisateur, extraite par segmentation,
+        apparaît habillée du costume 3D et placée dans le décor virtuel.
+      </figcaption>
+    </figure>
 
     <h3>3.4 Gestion du format couleur et correction du canal RGB</h3>
     <p>
-      La mise en œuvre de ce pipeline a nécessité une attention particulière au format de texture fourni par
-      Nuitrack. Une première version récupérait la texture couleur via la réflexion C# sur le composant interne
-      <code>RGBToTexture</code> de la classe <code>FrameUtils</code>. La texture ainsi obtenue se présentait dans
-      un format non standard, interprété par le shader comme un canal unique, ce qui produisait une image en
-      niveaux de gris.
+      Restait un détail qui s'est révélé être un piège. La première version récupérait la texture couleur par
+      réflexion C# sur le composant interne <code>RGBToTexture</code> de la classe <code>FrameUtils</code> de
+      Nuitrack. Mais la texture obtenue n'était pas dans un format standard, et le shader la lisait comme un
+      canal unique, ce qui produisait une image en niveaux de gris.
     </p>
     <p>
-      La correction a consisté à se brancher directement sur l'évènement
-      <code>NuitrackManager.onColorUpdate</code>, suivant la même approche que celle déjà mise en œuvre dans le
-      module de calibration du miroir. Cet évènement donne accès au <code>ColorFrame</code> brut, dont les canaux
-      sont permutés de l'ordre BGR (format natif de la Kinect) vers RGB avant chargement dans une
-      <code>Texture2D</code> au format <code>RGB24</code>. Les couleurs sont alors restituées fidèlement, sans perte
-      d'information.
+      La correction a consisté à s'abonner directement à l'évènement
+      <code>NuitrackManager.onColorUpdate</code>, comme le faisait déjà le module de calibration du miroir. On
+      y récupère le <code>ColorFrame</code> brut, on permute les canaux BGR (format natif de la Kinect) vers
+      RGB, et on charge le tout dans une <code>Texture2D</code> au format <code>RGB24</code>. Les couleurs sont
+      alors restituées correctement.
     </p>
   </section>
 
@@ -383,92 +360,80 @@ return fixed4(rgb.rgb, isPerson);</pre>
 
     <h3>4.1 Problématique</h3>
     <p>
-      Un véritable miroir ne se contente pas de restituer ce qu'il a en face de lui : il l'affiche selon une
-      géométrie très particulière. La main que l'utilisateur place à droite de son corps apparaît du côté droit
-      de son reflet, à l'endroit exact où la lumière lui parviendrait après réflexion. Reproduire cette sensation
-      à partir d'un écran et d'une caméra suppose donc bien plus qu'une simple retransmission du flux : il faut
-      que la position et la taille apparente de l'utilisateur à l'écran coïncident avec ce qu'il observerait dans
-      un miroir physique de mêmes dimensions, placé au même endroit. Cette correspondance dépend directement de
-      la position de la caméra par rapport à l'écran. Pour cette raison, la Kinect a été placée immédiatement
-      au-dessus de l'écran et centrée horizontalement, de manière à minimiser les écarts de parallaxe et à
-      simplifier les corrections géométriques à appliquer ensuite.
+      L'objectif de cette partie est d'aller au-delà d'une simple retransmission de l'image filmée. Quand
+      l'utilisateur place sa main à droite de son corps, son reflet doit la montrer à droite du miroir, à
+      l'endroit géométriquement attendu. Il faut que la position et la taille de l'utilisateur à l'écran
+      correspondent à ce qu'il observerait dans un vrai miroir physique placé au même endroit, et cela dépend
+      directement de la position de la caméra par rapport à l'écran. Pour simplifier le calage, la Kinect a
+      été placée juste au-dessus de l'écran et centrée horizontalement, ce qui limite la parallaxe à compenser.
     </p>
 
     <h3>4.2 Architecture du module</h3>
     <p>
-      Aucun composant existant ne répondait à ce besoin de calibration : nous avons donc développé pour
-      l'occasion un composant Unity dédié, <code>KinectMirrorCalibration</code>, écrit en C#. Il s'abonne à
-      l'évènement <code>NuitrackManager.onColorUpdate</code> pour récupérer chaque trame couleur émise par la
-      Kinect, puis charge les données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>.
-      Cette texture est associée à un composant <code>RawImage</code> placé dans un <code>Canvas</code> qui
-      occupe tout l'écran. L'ensemble du traitement géométrique est appliqué sur le <code>RectTransform</code>
-      de cette <code>RawImage</code> via une méthode <code>ApplyCalibration</code> qui peut être réinvoquée à
-      tout moment sans interrompre le flux vidéo.
+      Aucun composant existant ne couvrait ce besoin, nous avons donc écrit le nôtre : un script C# baptisé
+      <code>KinectMirrorCalibration</code>. Il s'abonne à l'évènement
+      <code>NuitrackManager.onColorUpdate</code> pour recevoir chaque trame couleur de la Kinect, et charge les
+      données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>. Cette texture est affectée à
+      un <code>RawImage</code> placé dans un <code>Canvas</code> plein écran. Tout le travail géométrique se
+      fait ensuite sur le <code>RectTransform</code> de cette <code>RawImage</code>, via une méthode
+      <code>ApplyCalibration</code> qu'on peut rappeler à la volée, sans interrompre le flux vidéo.
     </p>
 
-    <h3>4.3 Inversion horizontale et préservation du ratio</h3>
+    <h3>4.3 Inversion horizontale et paramètres ajustables</h3>
     <p>
-      La première transformation appliquée est une inversion horizontale du contenu, obtenue en affectant une
-      valeur négative à la composante <code>x</code> du <code>localScale</code> du <code>RectTransform</code>.
-      Cette inversion produit l'effet de symétrie attendu d'un miroir, sans altérer la qualité de l'image ni
-      ajouter de coût de calcul.
+      La première transformation est une inversion horizontale, obtenue en mettant à -1 la composante
+      <code>x</code> du <code>localScale</code> du <code>RectTransform</code>. C'est ce qui donne la symétrie
+      d'un miroir. Une seconde opération, gérée par la méthode <code>FitToCanvas</code>, dimensionne la
+      <code>RawImage</code> pour qu'elle remplisse le canvas tout en respectant le ratio de la texture Kinect,
+      ce qui évite toute déformation.
     </p>
     <p>
-      Une seconde opération, réalisée par la méthode <code>FitToCanvas</code>, ajuste les dimensions de la
-      <code>RawImage</code> pour qu'elle remplisse le <code>Canvas</code> tout en respectant le rapport
-      hauteur/largeur de la texture émise par la Kinect. Selon que le canvas est plus large ou plus haut que la
-      texture, l'image est étendue verticalement ou horizontalement, ce qui évite toute déformation de
-      l'utilisateur à l'écran.
-    </p>
-
-    <h3>4.4 Paramètres de calibration ajustables à l'exécution</h3>
-    <p>
-      Pour que la concordance entre l'utilisateur et son reflet soit parfaite, le composant expose quatre
-      paramètres modifiables en temps réel : <code>offsetX</code>, <code>offsetY</code>, <code>scaleX</code> et
-      <code>scaleY</code>. Les deux premiers permettent de translater l'image affichée afin de compenser le
-      décalage vertical introduit par le positionnement de la Kinect au-dessus de l'écran, ainsi que tout
-      éventuel défaut de centrage horizontal. Les deux suivants ajustent la mise à l'échelle du contenu, ce
-      qui revient à reproduire l'effet de zoom nécessaire pour que la silhouette affichée occupe à l'écran la
-      même surface qu'elle occuperait dans un véritable miroir.
-    </p>
-    <p>
-      Trois méthodes publiques (<code>SetOffset</code>, <code>SetScale</code>, <code>SetFlip</code>)
-      permettent de modifier ces paramètres depuis l'éditeur Unity ou par script, et déclenchent
-      automatiquement une nouvelle application de la calibration. Cette souplesse est essentielle, car les
-      réglages dépendent du couple écran/caméra utilisé et de la distance prévue entre l'utilisateur et le
-      dispositif : ils doivent pouvoir être réajustés rapidement à chaque nouvelle installation du miroir.
+      Pour ajuster finement l'effet miroir, le composant expose quatre paramètres modifiables en temps réel :
+      <code>offsetX</code>, <code>offsetY</code>, <code>scaleX</code> et <code>scaleY</code>. Les deux premiers
+      translatent l'image pour compenser le décalage vertical introduit par la Kinect placée au-dessus de
+      l'écran. Les deux autres ajustent la mise à l'échelle, pour que la silhouette affichée occupe à l'écran
+      la surface qu'occuperait un vrai reflet. Trois méthodes publiques (<code>SetOffset</code>,
+      <code>SetScale</code>, <code>SetFlip</code>) permettent de modifier ces valeurs depuis l'éditeur ou par
+      script, et relancent automatiquement <code>ApplyCalibration</code>. En pratique, ces réglages dépendent
+      du couple écran/caméra et de la distance prévue de l'utilisateur ; il faut donc pouvoir les refaire vite
+      quand on déplace le dispositif d'une salle à l'autre.
     </p>
   </section>
 
   <section id="conclusion">
     <h2>Conclusion <span class="status done">Terminé</span></h2>
     <p>
-      Mises bout à bout, les quatre contributions présentées dans ce rapport forment un prototype fonctionnel
-      de miroir interactif. Les modèles 3D préparés sous Blender, débarrassés de leurs contraintes et privés
-      de leurs zones occlusives, alimentent un pipeline Unity capable d'animer en temps réel un avatar à
-      partir du squelette Nuitrack et d'y appliquer des vêtements historiques modifiables à la volée. Le
-      flux vidéo réel de la Kinect est extrait par segmentation et composé avec une scène 3D, ce qui permet
-      à l'utilisateur de voir apparaître son propre visage et ses propres mains à travers le costume virtuel.
-      L'ensemble est restitué à l'écran selon une géométrie calibrée pour reproduire la sensation d'un
-      véritable miroir.
+      Mises bout à bout, les quatre briques décrites ici forment un prototype de miroir interactif. Les
+      modèles 3D nettoyés sous Blender alimentent un pipeline Unity qui anime un avatar à partir du squelette
+      Nuitrack, et lui applique des vêtements historiques changeables à la volée. Le flux vidéo de la Kinect
+      est extrait par segmentation et composé avec une scène 3D, ce qui permet à l'utilisateur de voir
+      apparaître son propre visage et ses propres mains à travers le costume virtuel. L'ensemble est restitué
+      à l'écran selon une géométrie calibrée pour imiter un vrai miroir.
     </p>
     <p>
-      L'intégration finale des quatre briques a néanmoins mis en évidence une difficulté qui n'apparaît
-      qu'à la jonction des modules : la calibration géométrique, mise au point isolément, applique au flux
-      vidéo une mise à l'échelle nécessaire à l'effet miroir, tandis que le reste de la chaîne
-      (avatars 3D, décors, vêtements) raisonne dans le repère natif de la scène Unity sans facteur de zoom.
-      Les proportions affichées ne coïncident donc plus une fois les composants assemblés : la silhouette
-      réelle de l'utilisateur et l'avatar habillé apparaissent à des échelles différentes. Cette
-      incompatibilité, identifiée tardivement dans le développement, n'a pas pu être résolue dans le
-      cadre du projet et constitue le principal point à reprendre lors d'une itération future.
+      Le principal point dur est apparu à l'assemblage. La calibration géométrique a été mise au point en
+      isolation : elle applique au flux vidéo un facteur d'échelle nécessaire pour reproduire la sensation
+      miroir. Le reste de la chaîne (avatars 3D, décors, vêtements) raisonne lui dans le repère natif de la
+      scène Unity, sans zoom. Une fois les composants assemblés, les proportions ne coïncident plus : la
+      silhouette réelle de l'utilisateur et l'avatar habillé n'apparaissent pas à la même échelle. Le
+      problème a été identifié tard et n'a pas pu être corrigé dans le temps imparti.
     </p>
     <p>
-      Au-delà de cette consolidation indispensable, plusieurs axes d'amélioration peuvent être envisagés :
-      enrichir le catalogue d'avatars et d'accessoires pour couvrir davantage de périodes historiques,
-      raffiner la simulation de tissus, intégrer le menu directement dans la scène 3D plutôt qu'en
-      <em>overlay</em>, ou encore permettre la manipulation de l'interface par les mouvements de
-      l'utilisateur. Ces évolutions s'inscriront naturellement dans la prochaine itération du projet, et
-      pourront s'appuyer sur l'architecture modulaire mise en place cette année.
+      Deux pistes nous paraissent prometteuses pour une prochaine itération. La première serait de porter la
+      calibration miroir dans le repère 3D de Unity, en agissant non plus sur la <code>RawImage</code> du flux
+      vidéo mais sur la caméra Unity elle-même : un même facteur d'échelle s'appliquerait alors à l'utilisateur
+      réel et à toute la scène 3D. La seconde, plus rapide à tester, consisterait à conserver la calibration
+      actuelle et à appliquer aux avatars et au décor le même <code>localScale</code> qu'à la
+      <code>RawImage</code>, en regroupant tout le contenu 3D sous un parent commun dont on contrôlerait
+      l'échelle. Aucune des deux n'a été implémentée, mais l'analyse du <code>KinectMirrorCalibration</code>
+      laisse penser que la seconde demande peu de modifications.
+    </p>
+    <p>
+      Au-delà de ce point bloquant, plusieurs améliorations sont envisageables : enrichir le catalogue
+      d'avatars et d'accessoires pour couvrir d'autres époques, raffiner la simulation des tissus, intégrer
+      le menu directement dans la scène 3D plutôt qu'en <em>overlay</em>, ou permettre la manipulation de
+      l'interface par les mouvements de l'utilisateur. L'architecture modulaire mise en place cette année
+      rend ces extensions plus simples à mettre en œuvre.
     </p>
   </section>
 
