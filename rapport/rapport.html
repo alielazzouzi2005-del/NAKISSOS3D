@@ -293,11 +293,11 @@
 
     <h3>3.1 Problématique</h3>
     <p>
-      Cette section traite du composite final : faire apparaître à l'écran la personne réelle filmée par la
-      caméra, vêtue des modèles 3D, et placée dans un décor virtuel cohérent avec la période représentée.
-      C'est la partie la plus visible du projet, et celle qui a posé le plus de questions, car la version
-      précédente n'avait jamais réussi à extraire le corps de l'utilisateur du flux vidéo. Faute de segmentation,
-      elle remplaçait totalement la personne par un avatar 3D animé : on ne voyait jamais le vrai utilisateur.
+      Faire apparaître à l'écran la personne réelle, vêtue des modèles 3D et plongée dans un décor virtuel :
+      c'est ce qu'on attend du composite final. C'est sans doute la partie la plus visible du projet, et c'est
+      aussi celle qui nous a posé le plus de questions. La version précédente n'avait jamais réussi à extraire
+      le corps de l'utilisateur du flux vidéo. Faute de segmentation, elle remplaçait totalement la personne
+      par un avatar 3D animé : on ne voyait jamais le vrai utilisateur.
     </p>
     <p>
       Notre solution combine un masque de segmentation produit par Nuitrack et un shader HLSL qui compose
@@ -324,8 +324,8 @@
     <pre style="background:#f0ede5;padding:12px;border-radius:4px;font-family:monospace;font-size:0.9em;">float isPerson = step(0.05, mask.r);
 return fixed4(rgb.rgb, isPerson);</pre>
     <p>
-      L'image obtenue est écrite dans une <code>RenderTexture</code>, elle-même affichée par un
-      <code>RawImage</code> de l'interface Unity. À partir de là, le moteur prend le relais pour la composition :
+      L'image obtenue est écrite dans une <code>RenderTexture</code>, qu'on affiche ensuite via un
+      <code>RawImage</code> de l'interface Unity. À partir de là, c'est le moteur qui prend le relais pour la composition :
       la scène 3D du décor est rendue en arrière-plan, la silhouette réelle de l'utilisateur s'incruste
       par-dessus, et les vêtements 3D peuvent à leur tour passer en avant-plan.
     </p>
@@ -351,9 +351,9 @@ return fixed4(rgb.rgb, isPerson);</pre>
 
     <h3>4.1 Problématique</h3>
     <p>
-      L'objectif de cette partie est d'aller au-delà d'une simple retransmission de l'image filmée. Quand
-      l'utilisateur place sa main à droite de son corps, son reflet doit la montrer à droite du miroir, à
-      l'endroit géométriquement attendu. Il faut que la position et la taille de l'utilisateur à l'écran
+      Afficher tel quel le flux vidéo ne suffit pas à donner un effet miroir convaincant. Quand l'utilisateur
+      place sa main à droite de son corps, son reflet doit la montrer à droite du miroir, à l'endroit
+      géométriquement attendu. Il faut que la position et la taille de l'utilisateur à l'écran
       correspondent à ce qu'il observerait dans un vrai miroir physique placé au même endroit, et cela dépend
       directement de la position de la caméra par rapport à l'écran. Pour simplifier le calage, la Kinect a
       été placée juste au-dessus de l'écran et centrée horizontalement, ce qui limite la parallaxe à compenser.
@@ -403,7 +403,7 @@ return fixed4(rgb.rgb, isPerson);</pre>
 
     <h3>4.4 Inversion horizontale et paramètres ajustables</h3>
     <p>
-      La première transformation est une inversion horizontale, obtenue en mettant à -1 la composante
+      Le plus simple d'abord : une inversion horizontale, qu'on obtient en mettant à -1 la composante
       <code>x</code> du <code>localScale</code> du <code>RectTransform</code>. C'est ce qui donne la symétrie
       d'un miroir. Une seconde opération, gérée par la méthode <code>FitToCanvas</code>, dimensionne la
       <code>RawImage</code> pour qu'elle remplisse le canvas tout en respectant le ratio de la texture Kinect,
