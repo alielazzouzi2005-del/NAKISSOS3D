@@ -440,8 +440,35 @@ return fixed4(rgb.rgb, isPerson);</pre>
   </section>
 
   <section id="conclusion">
-    <h2>Conclusion <span class="status todo">À faire</span></h2>
-    <div class="placeholder">À venir.</div>
+    <h2>Conclusion <span class="status done">Terminé</span></h2>
+    <p>
+      Mises bout à bout, les quatre contributions présentées dans ce rapport forment un prototype fonctionnel
+      de miroir interactif. Les modèles 3D préparés sous Blender, débarrassés de leurs contraintes et privés
+      de leurs zones occlusives, alimentent un pipeline Unity capable d'animer en temps réel un avatar à
+      partir du squelette Nuitrack et d'y appliquer des vêtements historiques modifiables à la volée. Le
+      flux vidéo réel de la Kinect est extrait par segmentation et composé avec une scène 3D, ce qui permet
+      à l'utilisateur de voir apparaître son propre visage et ses propres mains à travers le costume virtuel.
+      L'ensemble est restitué à l'écran selon une géométrie calibrée pour reproduire la sensation d'un
+      véritable miroir.
+    </p>
+    <p>
+      L'intégration finale des quatre briques a néanmoins mis en évidence une difficulté qui n'apparaît
+      qu'à la jonction des modules : la calibration géométrique, mise au point isolément, applique au flux
+      vidéo une mise à l'échelle nécessaire à l'effet miroir, tandis que le reste de la chaîne
+      (avatars 3D, décors, vêtements) raisonne dans le repère natif de la scène Unity sans facteur de zoom.
+      Les proportions affichées ne coïncident donc plus une fois les composants assemblés : la silhouette
+      réelle de l'utilisateur et l'avatar habillé apparaissent à des échelles différentes. Cette
+      incompatibilité, identifiée tardivement dans le développement, n'a pas pu être résolue dans le
+      cadre du projet et constitue le principal point à reprendre lors d'une itération future.
+    </p>
+    <p>
+      Au-delà de cette consolidation indispensable, plusieurs axes d'amélioration peuvent être envisagés :
+      enrichir le catalogue d'avatars et d'accessoires pour couvrir davantage de périodes historiques,
+      raffiner la simulation de tissus, intégrer le menu directement dans la scène 3D plutôt qu'en
+      <em>overlay</em>, ou encore permettre la manipulation de l'interface par les mouvements de
+      l'utilisateur. Ces évolutions s'inscriront naturellement dans la prochaine itération du projet, et
+      pourront s'appuyer sur l'architecture modulaire mise en place cette année.
+    </p>
   </section>
 
 </main>
