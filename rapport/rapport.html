@@ -213,8 +213,57 @@
   </section>
 
   <section id="decors">
-    <h2>Partie 3 &mdash; Unity : fond vert et décors <span class="status todo">À faire</span></h2>
-    <div class="placeholder">À venir.</div>
+    <h2>Partie 3 &mdash; Intégration du décor virtuel et incrustation de l'utilisateur <span class="status done">Terminé</span></h2>
+
+    <h3>3.1 Problématique</h3>
+    <p>
+      L'objectif de cette partie est de faire apparaître à l'écran l'utilisateur réel, filmé par la caméra,
+      vêtu des habits 3D et inséré dans un décor virtuel correspondant à la période historique reconstituée.
+      Le dispositif doit donc réaliser, en temps réel, un véritable composite entre le flux vidéo de la caméra
+      et la scène 3D rendue par Unity. La principale difficulté tient au fait que la version précédente du projet
+      n'était jamais parvenue à extraire le corps de l'utilisateur du flux RGB : faute de segmentation, l'équipe
+      avait dû se rabattre sur un avatar 3D animé qui se substituait entièrement à l'utilisateur, sans jamais
+      laisser apparaître la personne réelle.
+    </p>
+
+    <h3>3.2 Segmentation par masque Nuitrack</h3>
+    <p>
+      La solution retenue exploite la double sortie fournie par le SDK Nuitrack à partir de la caméra Azure Kinect.
+      Le <em>ColorFrame</em> donne accès à l'image RGB classique, tandis que l'<em>UserFrame</em> fournit, pour chaque
+      pixel, l'identifiant de l'utilisateur détecté à cet emplacement, ou zéro si aucun corps n'est présent.
+      Cette information est exploitée pour générer un masque binaire : un pixel vaut 255 lorsqu'un humain est
+      détecté, 0 sinon. Le masque est stocké dans une <code>Texture2D</code> au format <code>R8</code> (un seul canal,
+      très peu coûteux en mémoire) et mis à jour à chaque frame.
+    </p>
+
+    <h3>3.3 Composition par shader HLSL</h3>
+    <p>
+      Une fois le masque disponible, un composant <code>GreenScreenCompositor</code> transmet deux textures à un
+      shader HLSL dédié : <code>_RGBTex</code>, l'image couleur capturée, et <code>_MaskTex</code>, le masque de
+      segmentation. Le shader détermine la valeur d'alpha de chaque pixel à partir du masque, conservant la
+      couleur réelle là où un utilisateur est présent et rendant le pixel transparent partout ailleurs :
+    </p>
+    <pre style="background:#f0ede5;padding:12px;border-radius:4px;font-family:monospace;font-size:0.9em;">float isPerson = step(0.05, mask.r);
+return fixed4(rgb.rgb, isPerson);</pre>
+    <p>
+      Le résultat est rendu dans une <code>RenderTexture</code> affichée par un <code>RawImage</code> de l'interface
+      Unity. La composition exploite alors directement le pipeline de rendu du moteur : la scène 3D du décor est
+      tracée en arrière-plan, la silhouette réelle de l'utilisateur vient s'incruster par-dessus, et les vêtements
+      3D peuvent à leur tour être placés en avant-plan. L'arrière-plan réel de la pièce disparaît complètement.
+    </p>
+
+    <h3>3.4 Correction du rendu en niveaux de gris</h3>
+    <p>
+      Une première version récupérait la texture couleur via la réflexion C# sur le composant interne
+      <code>RGBToTexture</code> de la classe <code>FrameUtils</code> de Nuitrack. La texture ainsi obtenue se
+      présentait dans un format non standard, interprété par le shader comme un canal unique, ce qui produisait
+      une image en niveaux de gris. La correction a consisté à se brancher directement sur l'évènement
+      <code>NuitrackManager.onColorUpdate</code>, suivant la même approche que celle déjà mise en œuvre dans le
+      module de calibration du miroir. Cet évènement donne accès au <code>ColorFrame</code> brut, dont les canaux
+      sont permutés de l'ordre BGR (format natif de la Kinect) vers RGB avant chargement dans une
+      <code>Texture2D</code> au format <code>RGB24</code>. Les couleurs sont alors restituées fidèlement, sans perte
+      d'information.
+    </p>
   </section>
 
   <section id="calibration">
