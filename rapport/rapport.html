@@ -314,8 +314,64 @@ return fixed4(rgb.rgb, isPerson);</pre>
   </section>
 
   <section id="calibration">
-    <h2>Partie 4 &mdash; Calibration du miroir (Unity + C#) <span class="status todo">À faire</span></h2>
-    <div class="placeholder">À venir.</div>
+    <h2>Partie 4 &mdash; Calibration géométrique du miroir <span class="status done">Terminé</span></h2>
+
+    <h3>4.1 Problématique</h3>
+    <p>
+      Un véritable miroir ne se contente pas de restituer ce qu'il a en face de lui : il l'affiche selon une
+      géométrie très particulière. La main que l'utilisateur place à droite de son corps apparaît du côté droit
+      de son reflet, à l'endroit exact où la lumière lui parviendrait après réflexion. Reproduire cette sensation
+      à partir d'un écran et d'une caméra suppose donc bien plus qu'une simple retransmission du flux : il faut
+      que la position et la taille apparente de l'utilisateur à l'écran coïncident avec ce qu'il observerait dans
+      un miroir physique de mêmes dimensions, placé au même endroit. Cette correspondance dépend directement de
+      la position de la caméra par rapport à l'écran. Pour cette raison, la Kinect a été placée immédiatement
+      au-dessus de l'écran et centrée horizontalement, de manière à minimiser les écarts de parallaxe et à
+      simplifier les corrections géométriques à appliquer ensuite.
+    </p>
+
+    <h3>4.2 Architecture du module</h3>
+    <p>
+      Le module est implémenté dans le composant Unity <code>KinectMirrorCalibration</code>, écrit en C#. Il
+      s'abonne à l'évènement <code>NuitrackManager.onColorUpdate</code> pour récupérer chaque trame couleur émise
+      par la Kinect, puis charge les données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>.
+      Cette texture est associée à un composant <code>RawImage</code> placé dans un <code>Canvas</code> qui occupe
+      tout l'écran. L'ensemble du traitement géométrique est appliqué sur le <code>RectTransform</code> de cette
+      <code>RawImage</code> via une méthode <code>ApplyCalibration</code> qui peut être réinvoquée à tout moment
+      sans interrompre le flux vidéo.
+    </p>
+
+    <h3>4.3 Inversion horizontale et préservation du ratio</h3>
+    <p>
+      La première transformation appliquée est une inversion horizontale du contenu, obtenue en affectant une
+      valeur négative à la composante <code>x</code> du <code>localScale</code> du <code>RectTransform</code>.
+      Cette inversion produit l'effet de symétrie attendu d'un miroir, sans altérer la qualité de l'image ni
+      ajouter de coût de calcul.
+    </p>
+    <p>
+      Une seconde opération, réalisée par la méthode <code>FitToCanvas</code>, ajuste les dimensions de la
+      <code>RawImage</code> pour qu'elle remplisse le <code>Canvas</code> tout en respectant le rapport
+      hauteur/largeur de la texture émise par la Kinect. Selon que le canvas est plus large ou plus haut que la
+      texture, l'image est étendue verticalement ou horizontalement, ce qui évite toute déformation de
+      l'utilisateur à l'écran.
+    </p>
+
+    <h3>4.4 Paramètres de calibration ajustables à l'exécution</h3>
+    <p>
+      Pour que la concordance entre l'utilisateur et son reflet soit parfaite, le composant expose quatre
+      paramètres modifiables en temps réel : <code>offsetX</code>, <code>offsetY</code>, <code>scaleX</code> et
+      <code>scaleY</code>. Les deux premiers permettent de translater l'image affichée afin de compenser le
+      décalage vertical introduit par le positionnement de la Kinect au-dessus de l'écran, ainsi que tout
+      éventuel défaut de centrage horizontal. Les deux suivants ajustent la mise à l'échelle du contenu, ce
+      qui revient à reproduire l'effet de zoom nécessaire pour que la silhouette affichée occupe à l'écran la
+      même surface qu'elle occuperait dans un véritable miroir.
+    </p>
+    <p>
+      Trois méthodes publiques (<code>SetOffset</code>, <code>SetScale</code>, <code>SetFlip</code>)
+      permettent de modifier ces paramètres depuis l'éditeur Unity ou par script, et déclenchent
+      automatiquement une nouvelle application de la calibration. Cette souplesse est essentielle, car les
+      réglages dépendent du couple écran/caméra utilisé et de la distance prévue entre l'utilisateur et le
+      dispositif : ils doivent pouvoir être réajustés rapidement à chaque nouvelle installation du miroir.
+    </p>
   </section>
 
   <section id="conclusion">
