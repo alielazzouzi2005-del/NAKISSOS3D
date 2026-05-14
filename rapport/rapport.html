@@ -236,8 +236,61 @@
   </section>
 
   <section id="bodytracking">
-    <h2>Partie 2 &mdash; Unity : body tracking et habillage <span class="status todo">À faire</span></h2>
-    <div class="placeholder">À venir.</div>
+    <h2>Partie 2 &mdash; Unity : body tracking et habillage dynamique <span class="status done">Terminé</span></h2>
+
+    <h3>2.1 Choix des outils et environnement technique</h3>
+    <p>
+      L'implémentation logicielle repose sur le moteur Unity, retenu pour sa robustesse dans la gestion
+      d'applications 3D temps réel. Le choix de la solution de capture de mouvement a été contraint par des
+      considérations matérielles : le SDK officiel de Microsoft pour l'Azure Kinect requiert une carte graphique
+      NVIDIA, dont nos postes de développement n'étaient pas équipés. Nous nous sommes donc tournés vers le
+      <em>middleware</em> multiplateforme Nuitrack, qui permet d'extraire les données squelettiques issues de la
+      caméra de profondeur avec une latence réduite.
+    </p>
+
+    <h3>2.2 Pipeline d'intégration de l'avatar</h3>
+    <p>
+      Le déploiement du système de suivi a été conduit de manière incrémentale, afin de valider chaque étape
+      indépendamment et de garantir la stabilité de l'application :
+    </p>
+    <ul>
+      <li>
+        <strong>Validation du suivi.</strong> Les données de mouvement ont d'abord été appliquées à un modèle
+        simplifié de type <em>stickman</em>, permettant de vérifier la précision du squelette fourni par Nuitrack
+        sans interférence d'éventuels défauts de <em>rigging</em>.
+      </li>
+      <li>
+        <strong>Exploitation des modèles préparés.</strong> Une fois le suivi validé, les fichiers <code>.fbx</code>
+        issus du nettoyage sous Blender ont été importés dans Unity. La reconstruction préalable de la hiérarchie
+        des os, décrite à la section précédente, permet aux rotations de se propager naturellement le long de la
+        chaîne cinématique de l'avatar.
+      </li>
+      <li>
+        <strong>Application au modèle « Romain ».</strong> Ce <em>workflow</em> a été finalisé sur l'avatar
+        personnalisé hérité de l'équipe précédente, confirmant la capacité du pipeline à intégrer des actifs
+        existants une fois remis en conformité.
+      </li>
+    </ul>
+
+    <h3>2.3 Physique des tissus et réalisme visuel</h3>
+    <p>
+      L'un des défis majeurs concernait le comportement dynamique des vêtements. Afin d'éviter un rendu rigide
+      où les habits sembleraient plaqués sur l'avatar, une simulation simplifiée de physique des tissus a été
+      mise en place. L'emploi de modèles à forte densité de maillage (grand nombre de <em>vertices</em>) permet
+      d'obtenir des déformations plus fluides lors des mouvements. Un délai de réponse, paramétré directement
+      depuis l'interface de Unity, a ensuite été appliqué aux <em>vertices</em> situés sur la partie basse des
+      tuniques : le bas du costume suit ainsi le mouvement du corps avec un léger décalage, simulant le
+      flottement d'un tissu réel.
+    </p>
+
+    <h3>2.4 Interactivité et changement de costume</h3>
+    <p>
+      Pour répondre aux objectifs de médiation culturelle du projet, un système de menu interactif a été
+      développé en C#. En s'appuyant sur l'organisation des modèles en <em>prefabs</em> définie lors de l'étape
+      Blender, ce menu permet à l'utilisateur de changer de tenue en temps réel sans interrompre l'exécution
+      de l'application. La transition entre les différentes époques historiques s'effectue de manière fluide,
+      ce qui renforce la dimension ludique et immersive du miroir.
+    </p>
   </section>
 
   <section id="decors">
