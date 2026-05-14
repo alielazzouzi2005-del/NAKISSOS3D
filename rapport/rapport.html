@@ -203,8 +203,55 @@
   </section>
 
   <section id="blender">
-    <h2>Partie 1 &mdash; Blender : skins et intégration Unity <span class="status todo">À faire</span></h2>
-    <div class="placeholder">À venir.</div>
+    <h2>Partie 1 &mdash; Préparation des modèles 3D sous Blender <span class="status done">Terminé</span></h2>
+
+    <h3>1.1 Récupération et état initial des modèles</h3>
+    <p>
+      Les modèles 3D utilisés dans le projet ont été repris d'une banque fournie par l'encadrement, regroupant
+      plusieurs personnages historiques déjà modélisés et texturés. Ces modèles disposaient d'un squelette
+      (<em>rig</em>) hérité d'un usage antérieur, conçu pour des animations préenregistrées et non pour un suivi
+      en temps réel par capture de mouvement. Leur exploitation directe au sein de Unity, en sortie de la chaîne
+      de body tracking, s'est révélée impossible sans une étape préalable de remise en conformité du <em>rig</em>
+      et de la géométrie.
+    </p>
+
+    <h3>1.2 Nettoyage du squelette</h3>
+    <p>
+      La première intervention a consisté à supprimer l'ensemble des contraintes mécaniques attachées aux os
+      du <em>rig</em>. Ces contraintes, qui restreignaient l'amplitude angulaire de certaines articulations,
+      ne sont pas pertinentes dans notre cas d'usage : les mouvements appliqués aux modèles proviennent d'un
+      utilisateur humain réel, dont les articulations sont par nature limitées à des amplitudes physiologiques.
+      Les contraintes héritées entraient en conflit avec la cinématique reconstruite à partir du squelette
+      Nuitrack et produisaient des poses figées ou bloquées.
+    </p>
+    <p>
+      La hiérarchie parent-enfant des os a ensuite été entièrement reconstruite afin de garantir une propagation
+      naturelle des rotations le long de la chaîne cinématique. Cette étape conditionne directement la qualité
+      du rendu : un os mal rattaché provoque, à l'usage, des déformations visibles du maillage lors des
+      mouvements de l'utilisateur.
+    </p>
+
+    <h3>1.3 Suppression des zones occlusives</h3>
+    <p>
+      Les maillages correspondant au visage et aux mains ont été retirés sur chacun des modèles. Cette
+      suppression répond à une contrainte de cohérence visuelle avec la partie composition : le dispositif
+      final superpose le flux vidéo réel de l'utilisateur aux vêtements 3D. Conserver un visage et des mains
+      modélisés au sein de l'avatar aurait masqué les parties correspondantes de l'image réelle, brisant
+      l'illusion du miroir. En libérant ces zones, on permet au visage et aux mains de l'utilisateur de rester
+      pleinement visibles à l'écran, à travers les ouvertures du modèle 3D.
+    </p>
+
+    <h3>1.4 Export et intégration sous Unity</h3>
+    <p>
+      Les modèles préparés ont été exportés au format <code>.fbx</code>, qui constitue le format d'échange
+      privilégié entre Blender et Unity car il préserve à la fois la géométrie, le <em>rig</em> et les
+      coordonnées UV. À l'import dans Unity, chaque modèle a été encapsulé dans un <em>prefab</em>, c'est-à-dire
+      un actif réutilisable regroupant le maillage, le matériau et les références de texture associées.
+      L'emploi de <em>prefabs</em> garantit qu'un modèle peut être instancié à plusieurs endroits de la scène,
+      ou échangé dynamiquement au cours de l'exécution, sans avoir à reconfigurer l'application des textures
+      à chaque utilisation. Cette organisation facilite également le partage des modèles entre les différents
+      modules du projet et limite les risques de régression visuelle d'une version à l'autre.
+    </p>
   </section>
 
   <section id="bodytracking">
