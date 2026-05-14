@@ -331,13 +331,14 @@ return fixed4(rgb.rgb, isPerson);</pre>
 
     <h3>4.2 Architecture du module</h3>
     <p>
-      Le module est implémenté dans le composant Unity <code>KinectMirrorCalibration</code>, écrit en C#. Il
-      s'abonne à l'évènement <code>NuitrackManager.onColorUpdate</code> pour récupérer chaque trame couleur émise
-      par la Kinect, puis charge les données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>.
-      Cette texture est associée à un composant <code>RawImage</code> placé dans un <code>Canvas</code> qui occupe
-      tout l'écran. L'ensemble du traitement géométrique est appliqué sur le <code>RectTransform</code> de cette
-      <code>RawImage</code> via une méthode <code>ApplyCalibration</code> qui peut être réinvoquée à tout moment
-      sans interrompre le flux vidéo.
+      Aucun composant existant ne répondait à ce besoin de calibration : nous avons donc développé pour
+      l'occasion un composant Unity dédié, <code>KinectMirrorCalibration</code>, écrit en C#. Il s'abonne à
+      l'évènement <code>NuitrackManager.onColorUpdate</code> pour récupérer chaque trame couleur émise par la
+      Kinect, puis charge les données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>.
+      Cette texture est associée à un composant <code>RawImage</code> placé dans un <code>Canvas</code> qui
+      occupe tout l'écran. L'ensemble du traitement géométrique est appliqué sur le <code>RectTransform</code>
+      de cette <code>RawImage</code> via une méthode <code>ApplyCalibration</code> qui peut être réinvoquée à
+      tout moment sans interrompre le flux vidéo.
     </p>
 
     <h3>4.3 Inversion horizontale et préservation du ratio</h3>
