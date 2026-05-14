@@ -379,7 +379,27 @@ return fixed4(rgb.rgb, isPerson);</pre>
       <code>ApplyCalibration</code> qu'on peut rappeler à la volée, sans interrompre le flux vidéo.
     </p>
 
-    <h3>4.3 Inversion horizontale et paramètres ajustables</h3>
+    <h3>4.3 Intégration dans la scène Unity</h3>
+    <p>
+      Côté utilisation, brancher le composant sur une scène existante demande peu de manipulations :
+    </p>
+    <ol>
+      <li>créer un <code>Canvas</code> (<code>GameObject &gt; UI &gt; Canvas</code>) en mode
+        <em>Screen Space &mdash; Overlay</em> ;</li>
+      <li>y ajouter un <code>RawImage</code> enfant (clic droit sur le <code>Canvas</code>,
+        <code>UI &gt; Raw Image</code>) qu'on laisse tel quel : le script se charge de le redimensionner ;</li>
+      <li>créer un <code>GameObject</code> vide, qu'on peut appeler <code>MirrorManager</code>, et lui attacher
+        le composant <code>KinectMirrorCalibration</code> (<em>Add Component</em>) ;</li>
+      <li>dans l'Inspector du <code>MirrorManager</code>, glisser le <code>RawImage</code> dans le champ
+        <em>Mirror Display</em>.</li>
+    </ol>
+    <p>
+      Il suffit alors de passer en mode Play : le flux de la Kinect s'affiche en plein écran, déjà inversé
+      pour l'effet miroir. Tant que le <code>NuitrackManager</code> est présent dans la scène, aucune
+      configuration supplémentaire n'est nécessaire.
+    </p>
+
+    <h3>4.4 Inversion horizontale et paramètres ajustables</h3>
     <p>
       La première transformation est une inversion horizontale, obtenue en mettant à -1 la composante
       <code>x</code> du <code>localScale</code> du <code>RectTransform</code>. C'est ce qui donne la symétrie
