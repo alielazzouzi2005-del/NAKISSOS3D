@@ -248,10 +248,14 @@
       L'objectif de cette partie est de faire apparaître à l'écran l'utilisateur réel, filmé par la caméra,
       vêtu des habits 3D et inséré dans un décor virtuel correspondant à la période historique reconstituée.
       Le dispositif doit donc réaliser, en temps réel, un véritable composite entre le flux vidéo de la caméra
-      et la scène 3D rendue par Unity. La principale difficulté tient au fait que la version précédente du projet
-      n'était jamais parvenue à extraire le corps de l'utilisateur du flux RGB : faute de segmentation, l'équipe
-      avait dû se rabattre sur un avatar 3D animé qui se substituait entièrement à l'utilisateur, sans jamais
-      laisser apparaître la personne réelle.
+      et la scène 3D rendue par Unity.
+    </p>
+    <p>
+      La version précédente du projet n'était jamais parvenue à extraire le corps de l'utilisateur du flux RGB :
+      faute de segmentation, l'équipe avait dû se rabattre sur un avatar 3D animé qui se substituait entièrement
+      à l'utilisateur, sans jamais laisser apparaître la personne réelle. La solution présentée ici repose sur
+      trois briques successives : la génération d'un masque de segmentation, la composition par shader HLSL, et
+      la gestion du format couleur natif de la caméra.
     </p>
 
     <h3>3.2 Segmentation par masque Nuitrack</h3>
@@ -268,8 +272,9 @@
     <p>
       Une fois le masque disponible, un composant <code>GreenScreenCompositor</code> transmet deux textures à un
       shader HLSL dédié : <code>_RGBTex</code>, l'image couleur capturée, et <code>_MaskTex</code>, le masque de
-      segmentation. Le shader détermine la valeur d'alpha de chaque pixel à partir du masque, conservant la
-      couleur réelle là où un utilisateur est présent et rendant le pixel transparent partout ailleurs :
+      segmentation. Le shader détermine la valeur d'alpha de chaque pixel à partir du masque : il conserve la
+      couleur réelle là où un utilisateur est détecté, et rend le pixel transparent partout ailleurs. Le seuil
+      de 0.05 permet d'ignorer les légères valeurs résiduelles dues à la compression du masque :
     </p>
     <pre style="background:#f0ede5;padding:12px;border-radius:4px;font-family:monospace;font-size:0.9em;">float isPerson = step(0.05, mask.r);
 return fixed4(rgb.rgb, isPerson);</pre>
@@ -280,12 +285,16 @@ return fixed4(rgb.rgb, isPerson);</pre>
       3D peuvent à leur tour être placés en avant-plan. L'arrière-plan réel de la pièce disparaît complètement.
     </p>
 
-    <h3>3.4 Correction du rendu en niveaux de gris</h3>
+    <h3>3.4 Gestion du format couleur et correction du canal RGB</h3>
     <p>
-      Une première version récupérait la texture couleur via la réflexion C# sur le composant interne
-      <code>RGBToTexture</code> de la classe <code>FrameUtils</code> de Nuitrack. La texture ainsi obtenue se
-      présentait dans un format non standard, interprété par le shader comme un canal unique, ce qui produisait
-      une image en niveaux de gris. La correction a consisté à se brancher directement sur l'évènement
+      La mise en œuvre de ce pipeline a nécessité une attention particulière au format de texture fourni par
+      Nuitrack. Une première version récupérait la texture couleur via la réflexion C# sur le composant interne
+      <code>RGBToTexture</code> de la classe <code>FrameUtils</code>. La texture ainsi obtenue se présentait dans
+      un format non standard, interprété par le shader comme un canal unique, ce qui produisait une image en
+      niveaux de gris.
+    </p>
+    <p>
+      La correction a consisté à se brancher directement sur l'évènement
       <code>NuitrackManager.onColorUpdate</code>, suivant la même approche que celle déjà mise en œuvre dans le
       module de calibration du miroir. Cet évènement donne accès au <code>ColorFrame</code> brut, dont les canaux
       sont permutés de l'ordre BGR (format natif de la Kinect) vers RGB avant chargement dans une
