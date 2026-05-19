@@ -227,11 +227,7 @@
     </p>
 
     <figure>
-      <div class="ph">
-        [Figure 1 &mdash; Schéma du pipeline NAKISSOS3D : Azure Kinect &rarr; Nuitrack (ColorFrame + UserFrame)
-        &rarr; masque de segmentation &rarr; shader HLSL &rarr; composition avec la scène 3D Unity &rarr;
-        calibration géométrique &rarr; affichage à l'écran]
-      </div>
+      <img src="figures/pipeline.png" alt="Schéma du pipeline NAKISSOS3D" style="max-width:100%;border:1px solid var(--border);border-radius:4px;">
       <figcaption>
         Figure 1. Vue d'ensemble du pipeline NAKISSOS3D : de l'acquisition par la caméra Azure Kinect jusqu'au
         rendu composite à l'écran.
@@ -281,10 +277,7 @@
     </p>
 
     <figure>
-      <div class="ph">
-        [Figure 2 &mdash; Capture sous Unity d'un costume historique 3D après préparation sous Blender, prêt à
-        être animé par le squelette Nuitrack]
-      </div>
+      <img src="figures/skin.png" alt="Costume historique 3D sous Unity" style="max-width:60%;border:1px solid var(--border);border-radius:4px;">
       <figcaption>
         Figure 2. Visualisation sous Unity d'un costume historique après passage par Blender. Le <em>rig</em>
         a été nettoyé, le maillage est exporté en <code>.fbx</code> et encapsulé dans un <em>prefab</em>.
@@ -353,10 +346,7 @@
     </p>
 
     <figure>
-      <div class="ph">
-        [Figure 3 &mdash; Capture du menu interactif Unity : l'utilisateur peut basculer en temps réel entre
-        différentes tenues historiques sans relancer l'application]
-      </div>
+      <img src="figures/menu.png" alt="Menu de changement de costume Unity" style="max-width:55%;border:1px solid var(--border);border-radius:4px;">
       <figcaption>
         Figure 3. Capture du menu de changement de costume affiché dans le <code>Canvas</code> Unity.
       </figcaption>
@@ -408,10 +398,7 @@ return fixed4(rgb.rgb, isPerson);</pre>
     </p>
 
     <figure>
-      <div class="ph">
-        [Figure 4 &mdash; Capture du composite final : visage et mains réels visibles à travers les ouvertures
-        du costume 3D, sur fond de décor virtuel]
-      </div>
+      <img src="figures/resultat.png" alt="Composite final NAKISSOS3D" style="max-width:80%;border:1px solid var(--border);border-radius:4px;">
       <figcaption>
         Figure 4. Capture du composite final : la silhouette réelle de l'utilisateur, extraite par segmentation,
         apparaît habillée du costume 3D et placée dans le décor virtuel.
@@ -483,10 +470,7 @@ return fixed4(rgb.rgb, isPerson);</pre>
     </p>
 
     <figure>
-      <div class="ph">
-        [Figure 5 &mdash; Photo du dispositif : Kinect au-dessus de l'écran, main devant l'objectif visible à
-        l'écran à la position géométriquement attendue]
-      </div>
+      <img src="figures/miroir.png" alt="Test du dispositif NAKISSOS3D" style="max-width:80%;border:1px solid var(--border);border-radius:4px;">
       <figcaption>
         Figure 5. Test de la calibration miroir : la Kinect est posée juste au-dessus de l'écran, et les doigts
         placés devant l'objectif apparaissent à l'écran à l'endroit attendu, comme dans un véritable reflet.
