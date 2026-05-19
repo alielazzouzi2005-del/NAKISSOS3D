@@ -57,14 +57,14 @@
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 28px;
+    gap: 24px;
     flex-wrap: wrap;
     justify-content: center;
   }
   nav a {
     color: var(--accent);
     text-decoration: none;
-    font-size: 0.95em;
+    font-size: 0.92em;
     letter-spacing: 1px;
   }
   nav a:hover { text-decoration: underline; }
@@ -90,34 +90,54 @@
     color: var(--ink);
     margin-top: 28px;
   }
-  .status {
-    display: inline-block;
-    font-size: 0.75em;
-    padding: 3px 10px;
-    border-radius: 12px;
-    background: #f0e6d2;
+  sup.cite {
     color: var(--accent);
-    margin-left: 10px;
-    vertical-align: middle;
-    letter-spacing: 1px;
+    font-weight: bold;
   }
-  .status.todo { background: #f5e1e1; color: #a04040; }
-  .status.wip { background: #fff3d6; color: #a07020; }
-  .status.done { background: #e1f0e1; color: #2c6b2c; }
-  .placeholder {
-    color: var(--muted);
-    font-style: italic;
-    padding: 20px;
-    background: #f0ede5;
-    border-radius: 4px;
-    text-align: center;
-  }
+  sup.cite a { color: inherit; text-decoration: none; }
+  sup.cite a:hover { text-decoration: underline; }
   footer {
     text-align: center;
     padding: 30px;
     color: var(--muted);
     font-size: 0.85em;
     border-top: 1px solid var(--border);
+  }
+  figure {
+    text-align: center;
+    margin: 30px 0;
+  }
+  figure .ph {
+    border: 2px dashed var(--accent-light);
+    background: #f5f0e6;
+    padding: 50px 20px;
+    color: var(--muted);
+    font-style: italic;
+    border-radius: 4px;
+  }
+  figcaption {
+    font-size: 0.9em;
+    margin-top: 8px;
+    color: var(--muted);
+  }
+  pre {
+    background: #f0ede5;
+    padding: 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+    overflow-x: auto;
+  }
+  .footnote {
+    font-size: 0.85em;
+    color: var(--muted);
+    border-left: 3px solid var(--accent-light);
+    padding-left: 12px;
+    margin: 10px 0;
+  }
+  .biblio ol li {
+    margin-bottom: 12px;
+    font-size: 0.92em;
   }
 </style>
 </head>
@@ -136,9 +156,10 @@
   <ul>
     <li><a href="#resume">Résumé</a></li>
     <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#principe">Principe général</a></li>
     <li><a href="#blender">Blender</a></li>
-    <li><a href="#bodytracking">Body Tracking</a></li>
-    <li><a href="#decors">Décors</a></li>
+    <li><a href="#animation">Animation Unity</a></li>
+    <li><a href="#decors">Incrustation</a></li>
     <li><a href="#calibration">Calibration</a></li>
     <li><a href="#conclusion">Conclusion</a></li>
     <li><a href="#biblio">Bibliographie</a></li>
@@ -148,65 +169,100 @@
 <main>
 
   <section id="resume">
-    <h2>Résumé <span class="status done">Terminé</span></h2>
+    <h2>Résumé</h2>
     <p>
-      En 2024, un Français sur deux n'est pas allé au musée. NAKISSOS3D cherche à inverser la tendance avec
-      un <em>miroir interactif</em> dans lequel l'utilisateur se voit, en temps réel, vêtu de costumes
-      historiques reconstitués et plongé dans un décor d'époque. Le projet avait été amorcé l'année dernière
-      mais nous avons dû le reprendre intégralement, faute de fichiers réutilisables. Quatre briques techniques
-      ont été développées : préparation des modèles 3D sous Blender, body tracking et habillage des avatars
-      sous Unity, incrustation de l'utilisateur dans un décor virtuel, et calibration géométrique de l'effet
-      miroir. Ce rapport revient sur leur conception, leurs limites, et l'intégration partielle qui en résulte.
+      Le projet <strong>NAKISSOS3D</strong> est une application de réalité augmentée qui a pour objectif de rendre
+      le patrimoine accessible au grand public. L'utilisateur se place devant un miroir interactif et s'y voit, en
+      temps réel, vêtu de costumes historiques reconstitués et plongé dans un décor d'époque. L'application repose
+      sur quatre briques techniques : (i) la préparation des modèles 3D sous Blender, (ii) l'animation et l'habillage
+      des avatars sous Unity, (iii) l'incrustation de l'utilisateur dans un décor virtuel par segmentation, et
+      (iv) la calibration géométrique de l'effet miroir.
     </p>
   </section>
 
   <section id="introduction">
-    <h2>Introduction <span class="status done">Terminé</span></h2>
+    <h2>Introduction</h2>
     <p>
-      NAKISSOS3D est un projet de <em>miroir interactif</em> pensé pour la médiation patrimoniale. L'utilisateur
-      se place devant un écran, sur lequel une caméra de profondeur le filme, et y voit son propre reflet habillé
-      d'un costume historique, dans un décor d'époque. Le projet est mené à l'INSA Rennes sous l'encadrement de
+      En 2024, un Français sur deux n'est pas allé au musée<sup class="cite"><a href="#ref-culture">[1]</a></sup>.
+      Face à ce constat, l'usage des technologies immersives pour renouveler la médiation patrimoniale fait l'objet
+      de nombreux travaux récents<sup class="cite"><a href="#ref-bekele">[2]</a><a href="#ref-gaugne">[3]</a></sup>.
+      NAKISSOS3D s'inscrit dans cette dynamique avec une expérience immersive et ludique : l'utilisateur se place
+      devant un écran sur lequel une caméra de profondeur le filme, et y voit son propre reflet habillé d'un
+      costume historique, dans un décor d'époque. Le projet est mené à l'INSA Rennes sous l'encadrement de
       Ronan Gaugne (IRISA) et Théophane Nicolas (INRAP).
     </p>
     <p>
-      Le sujet avait été lancé l'an dernier par une première équipe, sans qu'un prototype fonctionnel ait pu voir
-      le jour. Les fichiers que nous avons récupérés étaient incomplets et, pour la plupart, inexploitables. Après
-      discussion avec nos encadrants, nous sommes donc repartis de zéro.
+      Le sujet avait été lancé l'an dernier par une première équipe, mais le résultat n'avait pas atteint un
+      prototype véritablement utilisable. Le dépôt GIT que nous avons récupéré ne contenait pas tous les fichiers
+      nécessaires, et la plupart de ceux qui restaient étaient inexploitables. Après discussion avec nos encadrants,
+      nous sommes donc repartis de zéro.
     </p>
     <p>
       Le rapport est organisé en quatre sections, dans l'ordre logique de la chaîne de traitement : préparation
-      des modèles sous Blender, suivi du mouvement et habillage sous Unity, incrustation de l'utilisateur dans
-      un décor virtuel, et calibration du miroir. Chacun de nous s'est plus particulièrement chargé d'une de ces
-      briques, mais nous avons travaillé ensemble la quasi-totalité du semestre, et il y a peu de décisions qui
-      n'aient pas été prises à plusieurs. Soulignons un point dès maintenant : l'assemblage final ne s'est pas
-      déroulé aussi proprement que prévu. Un problème d'échelle entre la calibration et le reste de la scène
-      n'a pas pu être complètement résolu, comme nous y reviendrons en conclusion.
+      des modèles sous Blender, animation et habillage sous Unity, incrustation de l'utilisateur dans un décor
+      virtuel, et calibration du miroir. Chacun de nous s'est plus particulièrement chargé d'une de ces briques,
+      mais nous avons travaillé ensemble la quasi-totalité du semestre, et il y a peu de décisions qui n'aient
+      pas été prises à plusieurs.
+    </p>
+  </section>
+
+  <section id="principe">
+    <h2>1. Principe général du projet</h2>
+    <p>
+      La figure 1 résume la chaîne de traitement complète. En amont, des modèles 3D de costumes historiques sont
+      préparés sous Blender : nettoyage du <em>rig</em>, retrait des zones occlusives, export en <code>.fbx</code>.
+      À l'exécution, la caméra Azure Kinect filme l'utilisateur et fournit, via le middleware
+      Nuitrack<sup class="cite"><a href="#ref-nuitrack">[4]</a></sup>, deux flux distincts : une image RGB couleur
+      et un squelette articulé reconstruit en temps réel à partir de la
+      profondeur<sup class="cite"><a href="#ref-shotton">[5]</a></sup>. Le squelette anime un avatar Unity
+      habillé d'un costume historique, tandis que l'image RGB est segmentée pour extraire la silhouette réelle
+      de l'utilisateur et la composer avec un décor virtuel via un shader HLSL<sup class="cite">*</sup>.
+      Enfin, un module de calibration géométrique ajuste la position et l'échelle du flux affiché à l'écran
+      pour reproduire la perception d'un véritable miroir.
     </p>
 
+    <p class="footnote">
+      * <strong>HLSL</strong> (<em>High-Level Shading Language</em>) est le langage de shaders propre à DirectX,
+      utilisé par Unity pour la programmation GPU.
+    </p>
+
+    <figure>
+      <div class="ph">
+        [Figure 1 &mdash; Schéma du pipeline NAKISSOS3D : Azure Kinect &rarr; Nuitrack (ColorFrame + UserFrame)
+        &rarr; masque de segmentation &rarr; shader HLSL &rarr; composition avec la scène 3D Unity &rarr;
+        calibration géométrique &rarr; affichage à l'écran]
+      </div>
+      <figcaption>
+        Figure 1. Vue d'ensemble du pipeline NAKISSOS3D : de l'acquisition par la caméra Azure Kinect jusqu'au
+        rendu composite à l'écran.
+      </figcaption>
+    </figure>
   </section>
 
   <section id="blender">
-    <h2>Partie 1 &mdash; Préparation des modèles 3D sous Blender <span class="status done">Terminé</span></h2>
+    <h2>2. Préparation des modèles 3D sous Blender</h2>
 
-    <h3>1.1 Récupération et état initial des modèles</h3>
+    <h3>2.1 Récupération et état initial des modèles</h3>
     <p>
       Le projet repose en partie sur des modèles 3D de personnages historiques fournis par l'encadrement :
       tuniques, capes, accessoires d'époque. Ces modèles avaient déjà servi pour des animations préenregistrées,
-      et disposaient à ce titre d'un squelette intégré. Mais ce <em>rig</em> n'avait pas été conçu pour être
-      piloté par une capture de mouvement temps réel, et tel quel, il ne fonctionnait pas dans notre contexte.
+      et disposaient à ce titre d'un <em>rig</em> (le squelette d'animation interne du modèle). Mais ce
+      <em>rig</em> n'avait pas été conçu pour être piloté par une capture de mouvement temps réel, et tel quel,
+      il ne fonctionnait pas dans notre contexte.
     </p>
 
-    <h3>1.2 Nettoyage du squelette</h3>
+    <h3>2.2 Nettoyage du squelette</h3>
     <p>
       Le <em>rig</em> contenait des contraintes mécaniques limitant l'amplitude angulaire de certaines
       articulations. Or, dans notre cas, les mouvements proviennent d'un utilisateur réel : ses articulations
       sont déjà bornées physiologiquement, et les contraintes du modèle entraient en conflit avec le squelette
       Nuitrack, produisant des poses bloquées. Nous les avons toutes retirées. La hiérarchie parent-enfant des
       os a également été refaite, pour que les rotations se propagent correctement le long du squelette ; sans
-      cela, le maillage présente à l'usage des déformations très visibles.
+      cela, le maillage du modèle (la surface 3D formée d'un assemblage de polygones) aurait présenté à l'usage
+      des déformations très visibles.
     </p>
 
-    <h3>1.3 Suppression des zones occlusives</h3>
+    <h3>2.3 Suppression des zones occlusives</h3>
     <p>
       Sur chacun des modèles, les maillages du visage et des mains ont aussi été retirés. C'est une décision
       dictée par la suite du pipeline : l'image finale superpose la vidéo réelle de l'utilisateur et l'avatar
@@ -215,61 +271,69 @@
       les mains de la personne à travers les ouvertures du costume.
     </p>
 
-    <h3>1.4 Export et intégration sous Unity</h3>
+    <h3>2.4 Export et intégration sous Unity</h3>
     <p>
       Les modèles ont été exportés au format <code>.fbx</code>, qui préserve à la fois la géométrie, le
-      <em>rig</em> et les coordonnées UV. À l'import dans Unity, chaque modèle a été encapsulé dans un
-      <em>prefab</em> : un actif réutilisable qui regroupe le maillage, le matériau et ses textures.
-      Concrètement, on peut alors instancier ou substituer un modèle pendant l'exécution sans avoir à
-      reconfigurer ses textures à chaque fois.
+      <em>rig</em> et les coordonnées UV (qui indiquent comment la texture 2D s'applique sur le modèle 3D).
+      À l'import dans Unity, chaque modèle a été encapsulé dans un <em>prefab</em> : un actif réutilisable
+      qui regroupe le maillage, le matériau et ses textures. Concrètement, on peut alors instancier ou
+      substituer un modèle pendant l'exécution sans avoir à reconfigurer ses textures à chaque fois.
     </p>
+
+    <figure>
+      <div class="ph">
+        [Figure 2 &mdash; Capture sous Unity d'un costume historique 3D après préparation sous Blender, prêt à
+        être animé par le squelette Nuitrack]
+      </div>
+      <figcaption>
+        Figure 2. Visualisation sous Unity d'un costume historique après passage par Blender. Le <em>rig</em>
+        a été nettoyé, le maillage est exporté en <code>.fbx</code> et encapsulé dans un <em>prefab</em>.
+      </figcaption>
+    </figure>
   </section>
 
-  <section id="bodytracking">
-    <h2>Partie 2 &mdash; Unity : body tracking et habillage dynamique <span class="status done">Terminé</span></h2>
+  <section id="animation">
+    <h2>3. Unity : animation et habillage dynamique</h2>
 
-    <h3>2.1 Choix des outils et environnement technique</h3>
+    <h3>3.1 Choix des outils et environnement technique</h3>
     <p>
-      L'application est développée sous Unity (version 6000.0.27f1, conservée par cohérence avec celle de l'an
-      dernier). Les scripts en C# sont écrits sous Visual Studio 2022.
+      L'application est développée sous Unity. Les scripts en C# sont écrits sous Visual Studio 2022.
     </p>
     <p>
-      Le choix de la solution de body tracking a en revanche été revu. L'équipe précédente s'appuyait sur le
-      SDK officiel de Microsoft pour l'Azure Kinect, dont le module <em>Body Tracking</em> repose sur une
-      inférence neuronale qui exige une carte graphique NVIDIA. Aucun de nos postes n'en disposait, et l'outillage
-      Azure Kinect n'est par ailleurs pas disponible sous Linux. Nous nous sommes donc tournés vers Nuitrack,
-      un <em>middleware</em> multiplateforme qui expose les données squelettiques de la caméra de profondeur
-      avec une latence compatible d'un usage temps réel.
+      Le choix de la solution d'animation par capture de mouvement a en revanche été revu. L'équipe précédente
+      s'appuyait sur le SDK officiel de Microsoft pour l'Azure
+      Kinect<sup class="cite"><a href="#ref-microsoft">[6]</a></sup>, dont le module <em>Body Tracking</em>
+      repose sur une inférence neuronale qui exige une carte graphique NVIDIA. Aucun de nos postes n'en
+      disposait. À cela s'ajoutait une contrainte plus pratique : l'utilisation de la Kinect, imposée par le
+      sujet, exigeait Windows, et seuls deux postes du laboratoire étaient compatibles ; à quatre, ça
+      compliquait nettement le travail en parallèle. Nous nous sommes donc tournés vers
+      Nuitrack<sup class="cite"><a href="#ref-nuitrack">[4]</a></sup>, un middleware qui expose les données
+      squelettiques de la Kinect sans dépendre d'une carte NVIDIA, avec une latence compatible d'un usage
+      temps réel.
     </p>
 
-    <h3>2.2 Pipeline d'intégration de l'avatar</h3>
+    <h3>3.2 Pipeline d'intégration de l'avatar</h3>
     <p>
       Le suivi a été mis en place progressivement, en validant chaque étape avant d'enchaîner :
     </p>
     <ul>
-      <li>un <em>stickman</em> pour vérifier la qualité du squelette Nuitrack, sans interférence d'un avatar complexe ;</li>
-      <li>un avatar humanoïde standard récupéré sur l'Asset Store de Unity, pour mettre au point l'attachement du squelette à un personnage habillé et observer un rendu complet ;</li>
+      <li>un <em>stickman</em> pour vérifier la qualité du squelette Nuitrack, sans interférence d'un avatar
+        complexe ;</li>
+      <li>un avatar humanoïde standard récupéré sur l'Asset Store de Unity, pour mettre au point l'attachement
+        du squelette à un personnage habillé et observer un rendu complet ;</li>
       <li>nos modèles préparés sous Blender, importés en <code>.fbx</code> ;</li>
-      <li>le modèle « Romain » hérité de l'équipe précédente, ce qui a confirmé que le pipeline pouvait digérer des actifs existants une fois remis au propre.</li>
+      <li>le modèle « Romain » hérité de l'équipe précédente, ce qui a confirmé que le pipeline pouvait digérer
+        des actifs existants une fois remis au propre.</li>
     </ul>
 
-    <figure style="text-align:center;margin:30px 0;">
-      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
-        [Figure 1 &mdash; Capture du body tracking : deux silhouettes humaines reconstruites par Nuitrack à partir du nuage de points de la Kinect, l'une debout (squelette cyan), l'autre assise (squelette magenta).]
-      </div>
-      <figcaption style="font-size:0.9em;margin-top:8px;">
-        Figure 1. Body tracking en conditions réelles. Nuitrack reconstruit en temps réel les squelettes des
-        deux personnes présentes dans le champ de la Kinect, y compris dans une posture assise et partiellement
-        masquée par le mobilier.
-      </figcaption>
-    </figure>
-
-    <h3>2.3 Physique des tissus et réalisme visuel</h3>
+    <h3>3.3 Physique des tissus et réalisme visuel</h3>
     <p>
       Le comportement des vêtements a été un vrai sujet. Tels quels, appliqués sur un squelette animé, ils
       suivent le corps de manière rigide, comme s'ils étaient peints dessus. Pour éviter cet effet plaqué, le
-      rendu s'appuie sur le composant <em>Skinned Mesh Renderer</em> de Unity, qui laisse un maillage se
-      déformer avec le squelette tout en autorisant des ajustements locaux sur les <em>vertices</em>.
+      rendu s'appuie sur le composant <em>Skinned Mesh Renderer</em> de
+      Unity<sup class="cite"><a href="#ref-unity">[7]</a></sup>, qui laisse un maillage se déformer avec le
+      squelette tout en autorisant des ajustements locaux sur les <em>vertices</em> (les points qui composent
+      le maillage 3D).
     </p>
     <p>
       Sur les zones les plus visibles (bas des tuniques, capes), nous avons appliqué un délai de réponse au
@@ -278,33 +342,46 @@
       rajouté des <em>vertices</em> pour donner au maillage assez de degrés de liberté.
     </p>
 
-    <h3>2.4 Interactivité et changement de costume</h3>
+    <h3>3.4 Interactivité et changement de costume</h3>
     <p>
       Un menu interactif en C# a été développé pour répondre à l'objectif de médiation culturelle. Chaque
-      accessoire ou pièce de vêtement est un <em>prefab</em> accroché au <em>joint</em> correspondant du
-      squelette (haut du corps, tête, etc.), et associé à un script qui contrôle son affichage. Le menu,
-      dessiné dans un <code>Canvas</code> Unity, permet de changer de tenue en cours d'exécution, sans
-      relancer l'application : la bascule d'une époque à l'autre se fait en quelques clics.
+      accessoire ou pièce de vêtement est un <em>prefab</em> attaché à l'articulation (<em>joint</em>) du
+      squelette correspondant à la zone du corps concernée : haut du corps, tête, etc. Un script associé à
+      chaque accessoire contrôle son affichage. Le menu, dessiné dans un <code>Canvas</code> Unity, permet de
+      changer de tenue en cours d'exécution, sans relancer l'application : la bascule d'une époque à l'autre
+      se fait en quelques clics.
     </p>
+
+    <figure>
+      <div class="ph">
+        [Figure 3 &mdash; Capture du menu interactif Unity : l'utilisateur peut basculer en temps réel entre
+        différentes tenues historiques sans relancer l'application]
+      </div>
+      <figcaption>
+        Figure 3. Capture du menu de changement de costume affiché dans le <code>Canvas</code> Unity.
+      </figcaption>
+    </figure>
   </section>
 
   <section id="decors">
-    <h2>Partie 3 &mdash; Intégration du décor virtuel et incrustation de l'utilisateur <span class="status done">Terminé</span></h2>
+    <h2>4. Incrustation en temps réel de l'utilisateur dans un décor virtuel</h2>
 
-    <h3>3.1 Problématique</h3>
+    <h3>4.1 Problématique</h3>
     <p>
       Faire apparaître à l'écran la personne réelle, vêtue des modèles 3D et plongée dans un décor virtuel :
       c'est ce qu'on attend du composite final. C'est sans doute la partie la plus visible du projet, et c'est
       aussi celle qui nous a posé le plus de questions. La version précédente n'avait jamais réussi à extraire
       le corps de l'utilisateur du flux vidéo. Faute de segmentation, elle remplaçait totalement la personne
-      par un avatar 3D animé : on ne voyait jamais le vrai utilisateur.
+      par un avatar 3D animé : on ne voyait jamais le vrai utilisateur. Des approches similaires ont été
+      explorées dans la littérature pour les cabines d'essayage
+      virtuelles<sup class="cite"><a href="#ref-adikari">[8]</a></sup>.
     </p>
     <p>
       Notre solution combine un masque de segmentation produit par Nuitrack et un shader HLSL qui compose
       l'image finale. Il a fallu aussi gérer un problème de format couleur que nous détaillons plus loin.
     </p>
 
-    <h3>3.2 Segmentation par masque Nuitrack</h3>
+    <h3>4.2 Segmentation par masque Nuitrack</h3>
     <p>
       Nuitrack expose deux flux issus de la Kinect. Le <code>ColorFrame</code> est l'image RGB classique.
       L'<code>UserFrame</code>, lui, est une carte qui indique pour chaque pixel l'identifiant de l'utilisateur
@@ -313,7 +390,7 @@
       <code>R8</code> (un seul canal, donc peu coûteux), et mis à jour à chaque frame.
     </p>
 
-    <h3>3.3 Composition par shader HLSL</h3>
+    <h3>4.3 Composition par shader HLSL</h3>
     <p>
       Une fois le masque construit, un composant que nous avons appelé <code>GreenScreenCompositor</code>
       envoie deux textures à un shader HLSL : la texture couleur <code>_RGBTex</code> et le masque
@@ -321,16 +398,27 @@
       couleur réelle là où une personne est détectée, et rend le pixel transparent partout ailleurs. Le seuil
       de 0.05 sert à filtrer les valeurs résiduelles de compression :
     </p>
-    <pre style="background:#f0ede5;padding:12px;border-radius:4px;font-family:monospace;font-size:0.9em;">float isPerson = step(0.05, mask.r);
+    <pre>float isPerson = step(0.05, mask.r);
 return fixed4(rgb.rgb, isPerson);</pre>
     <p>
       L'image obtenue est écrite dans une <code>RenderTexture</code>, qu'on affiche ensuite via un
-      <code>RawImage</code> de l'interface Unity. À partir de là, c'est le moteur qui prend le relais pour la composition :
-      la scène 3D du décor est rendue en arrière-plan, la silhouette réelle de l'utilisateur s'incruste
-      par-dessus, et les vêtements 3D peuvent à leur tour passer en avant-plan.
+      <code>RawImage</code> de l'interface Unity. À partir de là, c'est le moteur qui prend le relais pour la
+      composition : la scène 3D du décor est rendue en arrière-plan, la silhouette réelle de l'utilisateur
+      s'incruste par-dessus, et les vêtements 3D peuvent à leur tour passer en avant-plan.
     </p>
 
-    <h3>3.4 Gestion du format couleur et correction du canal RGB</h3>
+    <figure>
+      <div class="ph">
+        [Figure 4 &mdash; Capture du composite final : visage et mains réels visibles à travers les ouvertures
+        du costume 3D, sur fond de décor virtuel]
+      </div>
+      <figcaption>
+        Figure 4. Capture du composite final : la silhouette réelle de l'utilisateur, extraite par segmentation,
+        apparaît habillée du costume 3D et placée dans le décor virtuel.
+      </figcaption>
+    </figure>
+
+    <h3>4.4 Gestion du format couleur et correction du canal RGB</h3>
     <p>
       Restait un détail qui s'est révélé être un piège. La première version récupérait la texture couleur par
       réflexion C# sur le composant interne <code>RGBToTexture</code> de la classe <code>FrameUtils</code> de
@@ -339,69 +427,41 @@ return fixed4(rgb.rgb, isPerson);</pre>
     </p>
     <p>
       La correction a consisté à s'abonner directement à l'évènement
-      <code>NuitrackManager.onColorUpdate</code>, comme le faisait déjà le module de calibration du miroir. On
-      y récupère le <code>ColorFrame</code> brut, on permute les canaux BGR (format natif de la Kinect) vers
-      RGB, et on charge le tout dans une <code>Texture2D</code> au format <code>RGB24</code>. Les couleurs sont
-      alors restituées correctement.
+      <code>NuitrackManager.onColorUpdate</code>. On y récupère le <code>ColorFrame</code> brut, on permute
+      les canaux BGR (format natif de la Kinect) vers RGB, et on charge le tout dans une <code>Texture2D</code>
+      au format <code>RGB24</code>. Les couleurs sont alors restituées correctement.
     </p>
   </section>
 
   <section id="calibration">
-    <h2>Partie 4 &mdash; Calibration géométrique du miroir <span class="status done">Terminé</span></h2>
+    <h2>5. Calibration géométrique du miroir</h2>
 
-    <h3>4.1 Problématique</h3>
+    <h3>5.1 Problématique</h3>
     <p>
       Afficher tel quel le flux vidéo ne suffit pas à donner un effet miroir convaincant. Quand l'utilisateur
       place sa main à droite de son corps, son reflet doit la montrer à droite du miroir, à l'endroit
-      géométriquement attendu. Il faut que la position et la taille de l'utilisateur à l'écran
-      correspondent à ce qu'il observerait dans un vrai miroir physique placé au même endroit, et cela dépend
-      directement de la position de la caméra par rapport à l'écran. Pour simplifier le calage, la Kinect a
-      été placée juste au-dessus de l'écran et centrée horizontalement, ce qui limite la parallaxe à compenser.
+      géométriquement attendu. Il faut que la position et la taille de l'utilisateur à l'écran correspondent
+      à ce qu'il observerait dans un vrai miroir physique placé au même endroit, et cela dépend directement de
+      la position de la caméra par rapport à l'écran. Pour simplifier le calage, la Kinect a été placée juste
+      au-dessus de l'écran et centrée horizontalement, ce qui limite la parallaxe à compenser.
+    </p>
+    <p>
+      C'est également à ce stade qu'est apparue la principale difficulté d'intégration du projet : un défaut
+      d'échelle entre la calibration et le reste de la scène 3D, sur lequel nous reviendrons en conclusion.
     </p>
 
-    <h3>4.2 Architecture du module</h3>
+    <h3>5.2 Architecture du module</h3>
     <p>
       Aucun composant existant ne couvrait ce besoin, nous avons donc écrit le nôtre : un script C# baptisé
       <code>KinectMirrorCalibration</code>. Il s'abonne à l'évènement
-      <code>NuitrackManager.onColorUpdate</code> pour recevoir chaque trame couleur de la Kinect, et charge les
-      données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>. Cette texture est affectée à
-      un <code>RawImage</code> placé dans un <code>Canvas</code> plein écran. Tout le travail géométrique se
-      fait ensuite sur le <code>RectTransform</code> de cette <code>RawImage</code>, via une méthode
-      <code>ApplyCalibration</code> qu'on peut rappeler à la volée, sans interrompre le flux vidéo.
+      <code>NuitrackManager.onColorUpdate</code> pour recevoir chaque trame couleur de la Kinect, et charge
+      les données brutes dans une <code>Texture2D</code> au format <code>RGB24</code>. Cette texture est
+      affectée à un <code>RawImage</code> placé dans un <code>Canvas</code> plein écran. Tout le travail
+      géométrique se fait ensuite sur le <code>RectTransform</code> de cette <code>RawImage</code>, via une
+      méthode <code>ApplyCalibration</code> qu'on peut rappeler à la volée, sans interrompre le flux vidéo.
     </p>
 
-    <h3>4.3 Intégration dans la scène Unity</h3>
-    <p>
-      Côté utilisation, brancher le composant sur une scène existante demande peu de manipulations :
-    </p>
-    <ol>
-      <li>créer un <code>Canvas</code> (<code>GameObject &gt; UI &gt; Canvas</code>) en mode
-        <em>Screen Space &mdash; Overlay</em> ;</li>
-      <li>y ajouter un <code>RawImage</code> enfant (clic droit sur le <code>Canvas</code>,
-        <code>UI &gt; Raw Image</code>) qu'on laisse tel quel : le script se charge de le redimensionner ;</li>
-      <li>créer un <code>GameObject</code> vide, qu'on peut appeler <code>MirrorManager</code>, et lui attacher
-        le composant <code>KinectMirrorCalibration</code> (<em>Add Component</em>) ;</li>
-      <li>dans l'Inspector du <code>MirrorManager</code>, glisser le <code>RawImage</code> dans le champ
-        <em>Mirror Display</em>.</li>
-    </ol>
-    <p>
-      Il suffit alors de passer en mode Play : le flux de la Kinect s'affiche en plein écran, déjà inversé
-      pour l'effet miroir. Tant que le <code>NuitrackManager</code> est présent dans la scène, aucune
-      configuration supplémentaire n'est nécessaire.
-    </p>
-
-    <figure style="text-align:center;margin:30px 0;">
-      <div style="border:2px dashed var(--accent-light);background:#f5f0e6;padding:50px 20px;color:var(--muted);font-style:italic;border-radius:4px;">
-        [Figure 2 &mdash; Photo du dispositif en fonctionnement : la Kinect est posée juste au-dessus de l'écran, et la main placée devant l'objectif apparaît correctement positionnée dans le reflet affiché.]
-      </div>
-      <figcaption style="font-size:0.9em;margin-top:8px;">
-        Figure 2. Test de la calibration miroir : la Kinect est posée juste au-dessus de l'écran, et les
-        doigts placés devant l'objectif apparaissent à l'écran à l'endroit attendu, comme dans un véritable
-        reflet.
-      </figcaption>
-    </figure>
-
-    <h3>4.4 Inversion horizontale et paramètres ajustables</h3>
+    <h3>5.3 Inversion horizontale et paramètres ajustables</h3>
     <p>
       Le plus simple d'abord : une inversion horizontale, qu'on obtient en mettant à -1 la composante
       <code>x</code> du <code>localScale</code> du <code>RectTransform</code>. C'est ce qui donne la symétrie
@@ -417,13 +477,25 @@ return fixed4(rgb.rgb, isPerson);</pre>
       la surface qu'occuperait un vrai reflet. Trois méthodes publiques (<code>SetOffset</code>,
       <code>SetScale</code>, <code>SetFlip</code>) permettent de modifier ces valeurs depuis l'éditeur ou par
       script, et relancent automatiquement <code>ApplyCalibration</code>. En pratique, ces réglages dépendent
-      du couple écran/caméra et de la distance prévue de l'utilisateur ; il faut donc pouvoir les refaire vite
-      quand on déplace le dispositif d'une salle à l'autre.
+      du couple écran/caméra utilisé ; il faut donc pouvoir les refaire vite quand on déplace le dispositif
+      d'une salle à l'autre. Une amélioration possible serait d'ajuster automatiquement le facteur d'échelle
+      à partir de la distance utilisateur fournie par la profondeur de la Kinect.
     </p>
+
+    <figure>
+      <div class="ph">
+        [Figure 5 &mdash; Photo du dispositif : Kinect au-dessus de l'écran, main devant l'objectif visible à
+        l'écran à la position géométriquement attendue]
+      </div>
+      <figcaption>
+        Figure 5. Test de la calibration miroir : la Kinect est posée juste au-dessus de l'écran, et les doigts
+        placés devant l'objectif apparaissent à l'écran à l'endroit attendu, comme dans un véritable reflet.
+      </figcaption>
+    </figure>
   </section>
 
   <section id="conclusion">
-    <h2>Conclusion <span class="status done">Terminé</span></h2>
+    <h2>Conclusion</h2>
     <p>
       Mises bout à bout, les quatre briques décrites ici forment un prototype de miroir interactif. Les
       modèles 3D nettoyés sous Blender alimentent un pipeline Unity qui anime un avatar à partir du squelette
@@ -433,12 +505,12 @@ return fixed4(rgb.rgb, isPerson);</pre>
       à l'écran selon une géométrie calibrée pour imiter un vrai miroir.
     </p>
     <p>
-      Le principal point dur est apparu à l'assemblage. La calibration géométrique a été mise au point en
+      La principale difficulté est apparue à l'assemblage. La calibration géométrique a été mise au point en
       isolation : elle applique au flux vidéo un facteur d'échelle nécessaire pour reproduire la sensation
       miroir. Le reste de la chaîne (avatars 3D, décors, vêtements) raisonne lui dans le repère natif de la
       scène Unity, sans zoom. Une fois les composants assemblés, les proportions ne coïncident plus : la
-      silhouette réelle de l'utilisateur et l'avatar habillé n'apparaissent pas à la même échelle. Le
-      problème a été identifié tard et n'a pas pu être corrigé dans le temps imparti.
+      silhouette réelle de l'utilisateur et l'avatar habillé n'apparaissent pas à la même échelle. Le problème
+      a été identifié tard et n'a pas pu être corrigé dans le temps imparti.
     </p>
     <p>
       Deux pistes nous paraissent prometteuses pour une prochaine itération. La première serait de porter la
@@ -451,7 +523,7 @@ return fixed4(rgb.rgb, isPerson);</pre>
       laisse penser que la seconde demande peu de modifications.
     </p>
     <p>
-      Au-delà de ce point bloquant, plusieurs améliorations sont envisageables : enrichir le catalogue
+      Au-delà de ce point technique, plusieurs améliorations sont envisageables : enrichir le catalogue
       d'avatars et d'accessoires pour couvrir d'autres époques, raffiner la simulation des tissus, intégrer
       le menu directement dans la scène 3D plutôt qu'en <em>overlay</em>, ou permettre la manipulation de
       l'interface par les mouvements de l'utilisateur. L'architecture modulaire mise en place cette année
@@ -459,265 +531,59 @@ return fixed4(rgb.rgb, isPerson);</pre>
     </p>
   </section>
 
-  <section id="biblio">
-    <h2>Bibliographie <span class="status done">Terminé</span></h2>
-
-    <p style="font-style:italic;color:var(--muted);">
-      Sources de référence consultées pendant la conception du projet, organisées par grands thèmes.
-      Pour chaque entrée, la clé BibTeX figure entre crochets ; les lignes BibTeX correspondantes
-      sont fournies plus bas pour intégration directe dans <code>BiblioEP.bib</code>.
-    </p>
-
-    <h3>Médiation patrimoniale et réalité étendue</h3>
+  <section id="biblio" class="biblio">
+    <h2>Bibliographie</h2>
     <ol>
-      <li>
-        Ministère de la Culture, <em>Patrimoine : la fréquentation consolidée en 2024</em>, 2025.
-        [<code>culture:frequentation2024</code>]
-        <br><a href="https://www.culture.gouv.fr/actualites/patrimoine-la-frequentation-consolidee-en-2024">culture.gouv.fr/actualites/patrimoine-la-frequentation-consolidee-en-2024</a>
+      <li id="ref-culture">
+        Ministère de la Culture. <em>Patrimoine : la fréquentation consolidée en 2024</em>, 2025.
+        <a href="https://www.culture.gouv.fr/actualites/patrimoine-la-frequentation-consolidee-en-2024">
+          culture.gouv.fr</a>
       </li>
-      <li>
-        Bekele M.K., Pierdicca R., Frontoni E., Malinverni E.S., Gain J., <em>A Survey of Augmented,
-        Virtual, and Mixed Reality for Cultural Heritage</em>, ACM Journal on Computing and Cultural
-        Heritage, 2018. [<code>bekele:survey2018</code>]
-        <br><a href="https://dl.acm.org/doi/10.1145/3145534">dl.acm.org/doi/10.1145/3145534</a>
+      <li id="ref-bekele">
+        M.K. Bekele, R. Pierdicca, E. Frontoni, E.S. Malinverni, J. Gain. <em>A Survey of Augmented, Virtual,
+        and Mixed Reality for Cultural Heritage</em>. ACM Journal on Computing and Cultural Heritage, 11(2),
+        2018. <a href="https://dl.acm.org/doi/10.1145/3145534">dl.acm.org/doi/10.1145/3145534</a>
       </li>
-      <li>
-        Bonacini E., <em>Kinesthetic interactions in museums</em>, Virtual Reality, Springer, 2018.
-        [<code>bonacini:kinesthetic2018</code>]
-        <br><a href="https://link.springer.com/article/10.1007/s10055-017-0325-0">link.springer.com/article/10.1007/s10055-017-0325-0</a>
+      <li id="ref-gaugne">
+        R. Gaugne, T. Nicolas, A. Tortolano, B. Caraman, A. Pelletier. <em>Mixing Worlds: Current Trends in
+        Integrating the Past and Present through Augmented and Mixed Reality</em>. Advances in Archaeological
+        Practice, Cambridge University Press, 2022.
+        <a href="https://www.cambridge.org/core/journals/advances-in-archaeological-practice/article/mixing-worlds/EC23AA827C890C7241C2CCD091E547C2">
+          cambridge.org</a>
       </li>
-      <li>
-        Bogdanovych A., Rodriguez-Aguilar J.A., Simoff S., Cohen A., <em>Virtual humans in cultural
-        heritage ICT applications: A review</em>, Journal of Cultural Heritage, Elsevier, 2018.
-        [<code>bogdanovych:virtualhumans2018</code>]
-        <br><a href="https://www.sciencedirect.com/science/article/pii/S1296207417301796">sciencedirect.com/science/article/pii/S1296207417301796</a>
+      <li id="ref-nuitrack">
+        3DiVi Inc. <em>Nuitrack SDK Documentation</em>, 2024.
+        <a href="https://github.com/3DiVi/nuitrack-sdk">github.com/3DiVi/nuitrack-sdk</a>
       </li>
-    </ol>
-
-    <h3>Miroirs virtuels et essayage de vêtements en 3D</h3>
-    <ol start="5">
-      <li>
-        Adikari S.B., Ganegoda N.C., Meegama R.G.N., Wanniarachchi I.L., <em>Applicability of a Single
-        Depth Sensor in Real-Time 3D Clothes Simulation: Augmented Reality Virtual Dressing Room Using
-        Kinect Sensor</em>, Advances in Human-Computer Interaction, 2020. [<code>adikari:dressing2020</code>]
-        <br><a href="https://www.hindawi.com/journals/ahci/2020/1314598/">hindawi.com/journals/ahci/2020/1314598</a>
+      <li id="ref-shotton">
+        J. Shotton, T. Sharp, A. Kipman, A. Fitzgibbon, M. Finocchio, A. Blake, M. Cook, R. Moore.
+        <em>Real-time human pose recognition in parts from single depth images</em>. Communications of the
+        ACM, 56(1), 2013.
+        <a href="https://dl.acm.org/doi/10.1145/2398356.2398381">dl.acm.org/doi/10.1145/2398356.2398381</a>
       </li>
-      <li>
-        Hilsmann A., Eisert P., <em>Tracking and Retexturing Cloth for Real-Time Virtual Clothing
-        Applications</em>, Mirage 2009. [<code>hilsmann:retexturing2009</code>]
-        <br><a href="https://iphome.hhi.de/eisert/papers/mirage2009.pdf">iphome.hhi.de/eisert/papers/mirage2009.pdf</a>
+      <li id="ref-microsoft">
+        Microsoft. <em>Azure Kinect Body Tracking SDK Documentation</em>, 2024.
+        <a href="https://microsoft.github.io/Azure-Kinect-Body-Tracking/">
+          microsoft.github.io/Azure-Kinect-Body-Tracking</a>
       </li>
-      <li>
-        Dias J., Chouhan D., Churi P., Parab P., <em>Augmented Reality Based Virtual Dressing Room Using
-        Unity3D</em>, 2022. [<code>dias:dressingunity2022</code>]
-        <br><a href="https://dx.doi.org/10.2139/ssrn.4111818">dx.doi.org/10.2139/ssrn.4111818</a>
+      <li id="ref-unity">
+        Unity Technologies. <em>Unity Manual: Skinned Mesh Renderer component reference</em>.
+        <a href="https://docs.unity3d.com/Manual/class-SkinnedMeshRenderer.html">
+          docs.unity3d.com</a>
       </li>
-    </ol>
-
-    <h3>Capture de mouvement et caméras de profondeur</h3>
-    <ol start="8">
-      <li>
-        Microsoft, <em>Azure Kinect Body Tracking SDK Documentation</em>, version 1.1.x, 2024.
-        [<code>microsoft:azurekinectbt</code>]
-        <br><a href="https://microsoft.github.io/Azure-Kinect-Body-Tracking/">microsoft.github.io/Azure-Kinect-Body-Tracking</a>
-      </li>
-      <li>
-        Microsoft, <em>Azure Kinect Sensor SDK</em>, GitHub repository, 2024.
-        [<code>microsoft:azurekinectsdk</code>]
-        <br><a href="https://github.com/microsoft/Azure-Kinect-Sensor-SDK">github.com/microsoft/Azure-Kinect-Sensor-SDK</a>
-      </li>
-      <li>
-        3DiVi Inc., <em>Nuitrack SDK Documentation</em>, dépôt GitHub officiel, 2024.
-        [<code>3divi:nuitrack</code>]
-        <br><a href="https://github.com/3DiVi/nuitrack-sdk">github.com/3DiVi/nuitrack-sdk</a>
-      </li>
-      <li>
-        Shotton J., Sharp T., Kipman A., Fitzgibbon A., Finocchio M., Blake A., Cook M., Moore R.,
-        <em>Real-time human pose recognition in parts from single depth images</em>, Communications of
-        the ACM, 2013. [<code>shotton:pose2013</code>]
-        <br><a href="https://dl.acm.org/doi/10.1145/2398356.2398381">dl.acm.org/doi/10.1145/2398356.2398381</a>
+      <li id="ref-adikari">
+        S.B. Adikari, N.C. Ganegoda, R.G.N. Meegama, I.L. Wanniarachchi. <em>Applicability of a Single Depth
+        Sensor in Real-Time 3D Clothes Simulation: Augmented Reality Virtual Dressing Room Using Kinect
+        Sensor</em>. Advances in Human-Computer Interaction, 2020.
+        <a href="https://www.hindawi.com/journals/ahci/2020/1314598/">hindawi.com</a>
       </li>
     </ol>
-
-    <h3>Rendu temps réel, simulation de tissus et compositing</h3>
-    <ol start="12">
-      <li>
-        Unity Technologies, <em>Unity Manual: Skinned Mesh Renderer component reference</em>.
-        [<code>unity:skinnedmesh</code>]
-        <br><a href="https://docs.unity3d.com/Manual/class-SkinnedMeshRenderer.html">docs.unity3d.com/Manual/class-SkinnedMeshRenderer.html</a>
-      </li>
-      <li>
-        Unity Technologies, <em>Unity Manual: Cloth component</em>.
-        [<code>unity:cloth</code>]
-        <br><a href="https://docs.unity3d.com/Manual/class-Cloth.html">docs.unity3d.com/Manual/class-Cloth.html</a>
-      </li>
-      <li>
-        Park J., Kim H., <em>Real-Time Cloth Simulation in Extended Reality: Comparative Study Between
-        Unity Cloth Model and Position-Based Dynamics Model with GPU</em>, Applied Sciences, MDPI, 2025.
-        [<code>park:cloth2025</code>]
-        <br><a href="https://www.mdpi.com/2076-3417/15/12/6611">mdpi.com/2076-3417/15/12/6611</a>
-      </li>
-    </ol>
-
-    <h3>Travaux des encadrants et plateforme Immersia</h3>
-    <ol start="15">
-      <li>
-        Gaugne R., Gouranton V., Dumont G., Chauffaut A., Arnaldi B., <em>Immersia, an open immersive
-        infrastructure: doing archaeology in virtual reality</em>, Archeologia e Calcolatori, 2014.
-        [<code>gaugne:immersia2014</code>]
-        <br><a href="https://inria.hal.science/hal-01003383">inria.hal.science/hal-01003383</a>
-      </li>
-      <li>
-        Gaugne R., Nicolas T., Tortolano A., Caraman B., Pelletier A., <em>Mixing Worlds: Current Trends
-        in Integrating the Past and Present through Augmented and Mixed Reality</em>, Advances in
-        Archaeological Practice, Cambridge University Press, 2022.
-        [<code>gaugne:mixingworlds2022</code>]
-        <br><a href="https://www.cambridge.org/core/journals/advances-in-archaeological-practice/article/mixing-worlds/EC23AA827C890C7241C2CCD091E547C2">cambridge.org/.../mixing-worlds</a>
-      </li>
-      <li>
-        Gaugne R., Nicolas T., et al., <em>From medical imaging to virtual reality for archaeology</em>,
-        arXiv preprint, 2023. [<code>gaugne:medical2023</code>]
-        <br><a href="https://arxiv.org/abs/2301.11006">arxiv.org/abs/2301.11006</a>
-      </li>
-    </ol>
-
-    <h3>Entrées BibTeX correspondantes (à coller dans <code>BiblioEP.bib</code>)</h3>
-    <pre style="background:#f0ede5;padding:14px;border-radius:4px;font-family:monospace;font-size:0.82em;overflow:auto;">@misc{culture:frequentation2024,
-  author = {{Minist\`ere de la Culture}},
-  title  = {Patrimoine : la fr\'equentation consolid\'ee en 2024},
-  year   = {2025},
-  url    = {https://www.culture.gouv.fr/actualites/patrimoine-la-frequentation-consolidee-en-2024}
-}
-
-@article{bekele:survey2018,
-  author  = {Bekele, Mafkereseb Kassahun and Pierdicca, Roberto and Frontoni, Emanuele and Malinverni, Eva Savina and Gain, James},
-  title   = {A Survey of Augmented, Virtual, and Mixed Reality for Cultural Heritage},
-  journal = {ACM Journal on Computing and Cultural Heritage},
-  volume  = {11}, number = {2}, year = {2018}
-}
-
-@article{bonacini:kinesthetic2018,
-  author  = {Bonacini, Elisa},
-  title   = {Kinesthetic interactions in museums: conveying cultural heritage by making use of ancient tools and (re-)constructing artworks},
-  journal = {Virtual Reality},
-  publisher = {Springer},
-  year    = {2018}
-}
-
-@article{bogdanovych:virtualhumans2018,
-  author  = {Bogdanovych, Anton and Rodriguez-Aguilar, Juan A. and Simoff, Simeon and Cohen, Alex},
-  title   = {Virtual humans in cultural heritage ICT applications: A review},
-  journal = {Journal of Cultural Heritage},
-  publisher = {Elsevier},
-  year    = {2018}
-}
-
-@article{adikari:dressing2020,
-  author  = {Adikari, S.B. and Ganegoda, N.C. and Meegama, R.G.N. and Wanniarachchi, I.L.},
-  title   = {Applicability of a Single Depth Sensor in Real-Time 3D Clothes Simulation: Augmented Reality Virtual Dressing Room Using Kinect Sensor},
-  journal = {Advances in Human-Computer Interaction},
-  year    = {2020}
-}
-
-@inproceedings{hilsmann:retexturing2009,
-  author    = {Hilsmann, Anna and Eisert, Peter},
-  title     = {Tracking and Retexturing Cloth for Real-Time Virtual Clothing Applications},
-  booktitle = {Proceedings of Mirage},
-  year      = {2009}
-}
-
-@misc{dias:dressingunity2022,
-  author = {Dias, Jessica and Chouhan, Divya and Churi, Preshit and Parab, Pranay},
-  title  = {Augmented Reality Based Virtual Dressing Room Using Unity3D},
-  year   = {2022},
-  doi    = {10.2139/ssrn.4111818}
-}
-
-@misc{microsoft:azurekinectbt,
-  author = {{Microsoft}},
-  title  = {Azure Kinect Body Tracking SDK Documentation},
-  year   = {2024},
-  url    = {https://microsoft.github.io/Azure-Kinect-Body-Tracking/}
-}
-
-@misc{microsoft:azurekinectsdk,
-  author = {{Microsoft}},
-  title  = {Azure Kinect Sensor SDK},
-  year   = {2024},
-  url    = {https://github.com/microsoft/Azure-Kinect-Sensor-SDK}
-}
-
-@misc{3divi:nuitrack,
-  author = {{3DiVi Inc.}},
-  title  = {Nuitrack SDK Documentation},
-  year   = {2024},
-  url    = {https://github.com/3DiVi/nuitrack-sdk}
-}
-
-@article{shotton:pose2013,
-  author  = {Shotton, Jamie and Sharp, Toby and Kipman, Alex and Fitzgibbon, Andrew and Finocchio, Mat and Blake, Andrew and Cook, Mark and Moore, Richard},
-  title   = {Real-time human pose recognition in parts from single depth images},
-  journal = {Communications of the ACM},
-  volume  = {56}, number = {1}, year = {2013}
-}
-
-@misc{unity:skinnedmesh,
-  author = {{Unity Technologies}},
-  title  = {Unity Manual: Skinned Mesh Renderer component reference},
-  url    = {https://docs.unity3d.com/Manual/class-SkinnedMeshRenderer.html}
-}
-
-@misc{unity:cloth,
-  author = {{Unity Technologies}},
-  title  = {Unity Manual: Cloth component},
-  url    = {https://docs.unity3d.com/Manual/class-Cloth.html}
-}
-
-@article{park:cloth2025,
-  author  = {Park, Junho and Kim, Hyunchul},
-  title   = {Real-Time Cloth Simulation in Extended Reality: Comparative Study Between Unity Cloth Model and Position-Based Dynamics Model with GPU},
-  journal = {Applied Sciences},
-  publisher = {MDPI}, year = {2025}
-}
-
-@inproceedings{gaugne:immersia2014,
-  author    = {Gaugne, Ronan and Gouranton, Val\'erie and Dumont, Georges and Chauffaut, Alain and Arnaldi, Bruno},
-  title     = {Immersia, an open immersive infrastructure: doing archaeology in virtual reality},
-  booktitle = {Archeologia e Calcolatori},
-  year      = {2014},
-  url       = {https://inria.hal.science/hal-01003383}
-}
-
-@article{gaugne:mixingworlds2022,
-  author  = {Gaugne, Ronan and Nicolas, Th\'eophane and Tortolano, Andr\'e and Caraman, Bo\v{r}ivoj and Pelletier, Adrien},
-  title   = {Mixing Worlds: Current Trends in Integrating the Past and Present through Augmented and Mixed Reality},
-  journal = {Advances in Archaeological Practice},
-  publisher = {Cambridge University Press}, year = {2022}
-}
-
-@misc{gaugne:medical2023,
-  author = {Gaugne, Ronan and Nicolas, Th\'eophane and others},
-  title  = {From medical imaging to virtual reality for archaeology},
-  year   = {2023},
-  url    = {https://arxiv.org/abs/2301.11006}
-}</pre>
-
-    <h3>Suggestions d'insertion des citations dans le rapport</h3>
-    <ul>
-      <li>Résumé / Introduction : <code>\cite{culture:frequentation2024}</code> après la statistique sur la fréquentation des musées.</li>
-      <li>Introduction (médiation patrimoniale) : <code>\cite{bekele:survey2018, bonacini:kinesthetic2018, bogdanovych:virtualhumans2018}</code>.</li>
-      <li>Partie 2 (Nuitrack vs Microsoft, justification matérielle) : <code>\cite{microsoft:azurekinectbt, microsoft:azurekinectsdk, 3divi:nuitrack, shotton:pose2013}</code>.</li>
-      <li>Partie 2 (physique des tissus, <em>Skinned Mesh Renderer</em>, cape) : <code>\cite{unity:skinnedmesh, unity:cloth, park:cloth2025}</code>.</li>
-      <li>Partie 3 (compositing temps réel, miroir virtuel) : <code>\cite{adikari:dressing2020, hilsmann:retexturing2009, dias:dressingunity2022}</code>.</li>
-      <li>Partie 4 (calibration, dispositifs immersifs en archéologie, travaux des encadrants) :
-        <code>\cite{gaugne:immersia2014, gaugne:mixingworlds2022, gaugne:medical2023}</code>.</li>
-    </ul>
   </section>
 
 </main>
 
 <footer>
-  Rapport NAKISSOS3D &mdash; INSA Rennes &mdash; document en cours de rédaction
+  Rapport NAKISSOS3D &middot; INSA Rennes &middot; 2025-2026
 </footer>
 
 </body>
